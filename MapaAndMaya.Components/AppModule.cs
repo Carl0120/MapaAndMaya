@@ -1,8 +1,10 @@
 ﻿using EIS.Core.Services.Contracts;
+using MapaAndMaya.Services;
 using MapaAndMaya.Services.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Radzen;
 
 namespace MapaAndMaya.Components;
@@ -27,6 +29,9 @@ public class AppModule : IAppModule
                 }
             );
         });
+        
+        //Add Services
+        services.AddScoped<FacultyService>();
 
     }
 
@@ -34,5 +39,10 @@ public class AppModule : IAppModule
     {
      var dbContext = services.GetRequiredService<MapaAndMayaDbContext>();   
      dbContext.Database.Migrate();
+     
+      if (services.GetRequiredService<IHostingEnvironment>().IsDevelopment())
+      {
+         DbInitializer.Initialize(dbContext);
+      }
     }
 }

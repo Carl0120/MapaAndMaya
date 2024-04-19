@@ -6,19 +6,36 @@
 <RadzenNotification/>
 <RadzenContextMenu/>
 <RadzenTooltip/>
+<RadzenComponents/>
 
-<RadzenLayout>
-    <RadzenHeader>
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center"  Gap="0">            
-            <RadzenIcon Icon="hub" Style="margin: 0px 10px;"/>
-            <RadzenLabel Text="Maya Curricular"></RadzenLabel>
-        </RadzenStack>
-    </RadzenHeader>
-    <RadzenBody>
-        @Body
-    </RadzenBody>
-    <RadzenFooter>
-        <RadzenImage Path="/img/UM_Azul.png" width="25px;"></RadzenImage> Universidad de Matanzas
-    </RadzenFooter>
-</RadzenLayout>
+
+    <RadzenLayout>
+        <RadzenHeader >
+            <RadzenRow JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Gap="0">
+                <RadzenColumn Size="5">
+                  <RadzenIcon Icon="hub" Style="margin: 0px 10px;"/>
+                  <RadzenLabel Text="Maya Curricular"></RadzenLabel>
+                </RadzenColumn>
+                <RadzenColumn Size="7">
+                    <RadzenStack AlignItems="AlignItems.End" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+                        <RadzenMenu Style="height: 50px">
+                          <RadzenMenuItem Text="Home" Icon="home"  Path="home"></RadzenMenuItem>
+                          <RadzenMenuItem Text="Facultades" Path="faculty" Icon="account_circle"></RadzenMenuItem>
+                          <RadzenMenuItem Text="Menu" Path="menu" Icon="line_weight"></RadzenMenuItem>
+                          <RadzenMenuItem Text="ChildClick" Icon="attach_file"></RadzenMenuItem>
+                          <RadzenMenuItem Text="Dialog" Path="dialog" Icon="perm_media"></RadzenMenuItem>
+                          <RadzenMenuItem Text="Notification" Path="notification" Icon="announcement"></RadzenMenuItem>
+                        </RadzenMenu>
+                    </RadzenStack>
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenHeader>
+        <RadzenBody>
+            <RadzenRow class="rz-mx-auto rz-px-4 rz-pt-2 rz-pt-md-4 rz-pt-lg-6 rz-pt-xl-12 rz-pb-2 rz-pb-lg-12" Style="max-width: 1440px;">
+                <RadzenColumn Size="12">
+                @Body
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenBody>
+    </RadzenLayout>           
 

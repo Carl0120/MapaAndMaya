@@ -1,0 +1,39 @@
+﻿@page "/faculty"
+@layout MMLayout
+@using MapaAndMaya.Services;
+@using MapaAndMaya.Services.Models
+@inject FacultyService FacultyService;
+
+<PageTitle>Faculty</PageTitle>
+<RadzenRow>
+    <RadzenColumn Size="12">
+        <RadzenText Text="Facultades" TextStyle="TextStyle.H3" TagName="TagName.H1" />
+    </RadzenColumn>
+</RadzenRow>
+<div class="container-fluid my-3">
+    <RadzenButton Text="Add New"  class="my-3" />
+    <RadzenDataGrid Data="@faculties" TItem="Faculty" Count="@count">
+        <Columns>
+            <RadzenDataGridColumn TItem="Faculty" Property="Id" Title="ID"  />
+            <RadzenDataGridColumn TItem="Faculty" Property="Name" Title="Nombre" />
+        </Columns>
+    </RadzenDataGrid>
+</div>
+
+@code {
+    private  IEnumerable<Faculty> faculties;
+    int count;
+   protected override async Task OnInitializedAsync()
+    {
+        faculties = await FacultyService.FindAll();
+       
+        Console.WriteLine("Desde la vista");
+          
+        foreach (var faculty in faculties)
+        {
+            Console.WriteLine($"id: {faculty.Id} Nombre: {faculty.Name}");
+        }
+
+        count = faculties.Count();
+    }
+}
