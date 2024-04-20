@@ -2,6 +2,7 @@
 using MapaAndMaya.Services.Models;
 using MapaAndMaya.Services.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 
 namespace MapaAndMaya.Services;
@@ -10,7 +11,7 @@ public class FacultyService
 {
     private readonly ILogger<FacultyService> _logger;
 
-    private readonly MapaAndMayaDbContext _dbContext;
+    public readonly MapaAndMayaDbContext _dbContext;
 
     public FacultyService(ILogger<FacultyService> logger, MapaAndMayaDbContext dbContext)
     {
@@ -18,19 +19,20 @@ public class FacultyService
         _dbContext = dbContext;
     }
 
-    public async Task<ActionResult<FacultyViewModel>> Create(FacultyViewModel model)
+    public async Task<ActionResult<Faculty>> Create(FacultyViewModel model)
     {
         var anyTask = _dbContext.Faculties.AnyAsync(p => p.Name == model.Name);
         
-        ActionResult<FacultyViewModel> result = new ActionResult<FacultyViewModel>(model);
+        ActionResult<Faculty> result = new ActionResult<Faculty>();
         
         if (await anyTask)
         {
-            result.Errors.Add(("Name","Ya existe una facultad con ese nombre"));
+            result.Errors.Add("Ya existe una facultad con ese nombre");
         }
         if (result.Errors.Any())
         {
             result.Status = false;
+            result.Severity = NotifySeverity.Warning;
             result.Title = "Accion Inválida";
             return result;
         }
@@ -40,39 +42,43 @@ public class FacultyService
         
         try
         {
-            _dbContext.Faculties.Add(entity);
+            EntityEntry<Faculty> resp = _dbContext.Faculties.Add(entity);
             await _dbContext.SaveChangesAsync();
             result.Title = "Exito";
+            result.Severity = NotifySeverity.Succes;
             result.Status = true;
+            result.Result = resp.Entity;
             return result;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
             result.Title = "Fallo";
+            result.Severity = NotifySeverity.Error;
             result.Status = false;
-            result.Errors.Add(("Server",ex.Message));
+            result.Errors.Add((ex.Message));
             return result;
         }
 
     }
     
-    public async Task<ActionResult<FacultyViewModel>> Update(FacultyViewModel model)
+    public async Task<ActionResult<Faculty>> Update(FacultyViewModel model)
     {
         var findTask = _dbContext.Faculties.FindAsync(model.Id);
         
-        ActionResult<FacultyViewModel> result = new ActionResult<FacultyViewModel>(model);
+        ActionResult<Faculty> result = new ActionResult<Faculty>();
         
         Faculty? entity = await findTask;
         
         if (entity == null)
         {
-            result.Errors.Add(("Id","No se encuentra la facultad"));
+            result.Errors.Add("No se encuentra la facultad");
         }
         
         if (result.Errors.Any())
         {
             result.Status = false;
+            result.Severity = NotifySeverity.Warning;
             result.Title = "Accion Inválida";
             return result;
         }
@@ -80,18 +86,21 @@ public class FacultyService
         model.CopyToEntity(entity!);
         try
         {
-            _dbContext.Faculties.Add(entity!);
+            _dbContext.Faculties.Update(entity!);
             await _dbContext.SaveChangesAsync();
             result.Title = "Exito";
+            result.Severity = NotifySeverity.Succes;
             result.Status = true;
+            result.Result = entity;
             return result;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
             result.Title = "Fallo";
+            result.Severity = NotifySeverity.Error;
             result.Status = false;
-            result.Errors.Add(("Server",ex.Message));
+            result.Errors.Add(ex.Message);
             return result;
         }
 
@@ -99,29 +108,35 @@ public class FacultyService
 
     public async Task<ActionResult<Faculty>> Delete(Faculty entity)
     {
-        ActionResult<Faculty> result = new ActionResult<Faculty>(entity);
+        ActionResult<Faculty> result = new ActionResult<Faculty>();
         
         try
         {
-            var item = await _dbContext.Faculties.FindAsync(entity.Id);
-            _dbContext.Faculties.Remove(item);
-            await _dbContext.SaveChangesAsync();
+            Faculty? item = await _dbContext.Faculties.FindAsync(entity.Id);
+            if (item != null)
+            {
+                _dbContext.Faculties.Remove(item);
+                await _dbContext.SaveChangesAsync(); 
+            }
             result.Status = true;
             result.Title = "Exito";
+            result.Severity = NotifySeverity.Succes;
+            result.Result = entity;
             return result;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
             result.Title = "Fallo";
+            result.Severity = NotifySeverity.Error;
             result.Status = false;
-            result.Errors.Add(("Server",ex.Message));
+            result.Errors.Add(ex.Message);
             return result;
         }
         
     }
     
-    public async Task<IEnumerable<Faculty>> FindAll()
+    public async Task<ICollection<Faculty>> FindAll()
     {
         try
         {
@@ -132,7 +147,7 @@ public class FacultyService
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            return Enumerable.Empty<Faculty>();
+            return new List<Faculty>();
         }
     }
 
@@ -140,7 +155,7 @@ public class FacultyService
     {
         try
         {
-            var itemTask = _dbContext.Faculties.AsNoTracking()
+            var itemTask = _dbContext.Faculties
                  .FirstOrDefaultAsync(e => e.Id == id);
             return await itemTask;
 
@@ -151,4 +166,5 @@ public class FacultyService
             return null;
         }
     }
+     
 }

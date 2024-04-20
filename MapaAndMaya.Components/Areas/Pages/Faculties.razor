@@ -1,39 +1,92 @@
-﻿@page "/faculty"
+@page "/faculty"
 @layout MMLayout
 @using MapaAndMaya.Services;
-@using MapaAndMaya.Services.Models
+@using MapaAndMaya.Services.Models;
+@using Microsoft.Extensions.Logging
+
+
 @inject FacultyService FacultyService;
+@inject DialogService DialogService;
+@inject NotificationService NotificationService;
+@inject ILogger<Faculties> Logger;
+
+
 
 <PageTitle>Faculty</PageTitle>
 <RadzenRow>
     <RadzenColumn Size="12">
-        <RadzenText Text="Facultades" TextStyle="TextStyle.H3" TagName="TagName.H1" />
+        <RadzenText Text="Facultades" TextStyle="TextStyle.H3" TagName="TagName.H1"/>
     </RadzenColumn>
 </RadzenRow>
-<div class="container-fluid my-3">
-    <RadzenButton Text="Add New"  class="my-3" />
-    <RadzenDataGrid Data="@faculties" TItem="Faculty" Count="@count">
-        <Columns>
-            <RadzenDataGridColumn TItem="Faculty" Property="Id" Title="ID"  />
-            <RadzenDataGridColumn TItem="Faculty" Property="Name" Title="Nombre" />
-        </Columns>
-    </RadzenDataGrid>
-</div>
+<RadzenPanel>
+    <HeaderTemplate>
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Right">
+            <RadzenButton Icon="add_circle_outline" Text="Agregar" ButtonStyle="ButtonStyle.Primary" Click="@AddItem" class="my-3"/>
+            <RadzenButton Icon="delete_forever" Text="Eliminar" Click="@DeleteItems" class="my-3" ButtonStyle="ButtonStyle.Danger" Disabled="@(SelectedFaculties == null || SelectedFaculties.Count == 0)"/>
+        </RadzenStack>
+    </HeaderTemplate>
+    <ChildContent>
+        <RadzenDataGrid @ref=_grid Data="@FacultiesCollection" TItem="Faculty"  AllowPaging="true" 
+                        PageSize="5" PagerHorizontalAlign="HorizontalAlign.Center" IsLoading="@_isLoading"
+                        AllowSorting="true" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@SelectedFaculties">
+            <Columns>
+                <RadzenDataGridColumn TItem="Faculty" Width="60px" Sortable="false" Filterable="false">
+                    <HeaderTemplate>
+                        <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string, object> { { "aria-label", "Select all items" } })"
+                                        Value="@(SelectedFaculties == null || SelectedFaculties?.Any() != true ? false : !FacultiesCollection.All(i => SelectedFaculties.Contains(i)) ? null : FacultiesCollection.Any(i => SelectedFaculties.Contains(i)))"
+                                        Change="@(args => SelectedFaculties = args == true ? FacultiesCollection.ToList() : null)"/>
+                    </HeaderTemplate>
+                    <Template Context="data">
+                        <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(SelectedFaculties != null && SelectedFaculties.Contains(data))" InputAttributes="@(new Dictionary<string, object> { { "aria-label", "Select item" } })"
+                                        TValue="bool"/>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Faculty" Property="Name" Title="Nombre"/>
+                <RadzenDataGridColumn TItem="Faculty" Context="data" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="156px">
+                    <Template Context="data">
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                      Click="@(_ => EditItem(data))" @onclick:stopPropagation="true">
+                        </RadzenButton>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </ChildContent>
+</RadzenPanel>
 
 @code {
-    private  IEnumerable<Faculty> faculties;
-    int count;
-   protected override async Task OnInitializedAsync()
+    
+    private async Task ShowFormularyDialog(Action onSummit, string title)
     {
-        faculties = await FacultyService.FindAll();
-       
-        Console.WriteLine("Desde la vista");
-          
-        foreach (var faculty in faculties)
-        {
-            Console.WriteLine($"id: {faculty.Id} Nombre: {faculty.Name}");
-        }
+        
+        var result = await DialogService.OpenAsync(title, ds =>
+                @<EditForm Model="@FacultyViewModel" OnValidSubmit="@onSummit">
+                    <DataAnnotationsValidator/>
+                   <div class="container-fluid">
+                        <div class="row ">
+                            <RadzenLabel Component="Name" Text="Nombre de la Facultad:"/> <br/>
+                            <div class="col-md-12 pb-3">
+                                <RadzenTextBox @bind-Value="FacultyViewModel.Name" Name="Name" style="width: 100%;"/>
+                                <ValidationMessage For="@(() => FacultyViewModel.Name)"/>
 
-        count = faculties.Count();
+                            </div>
+                        </div>
+                    </div>
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
+                        <RadzenButton ButtonType="ButtonType.Submit" Text="Guardar" Icon="save" class="me-1"/>
+                        <RadzenButton Text="Cancelar" Icon="clear" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Light" class="me-1"/>
+            </RadzenStack>
+            </EditForm>
+            , new DialogOptions { Width = $"{400}px" }
+        );
     }
+
+    private async Task BusyDialog(string message)
+    {
+        await DialogService.OpenAsync("", _ =>
+            @<RadzenStack AlignItems="AlignItems.Center" Gap="2rem" Class="rz-p-12">
+                <RadzenText TextStyle="TextStyle.H6" Text="@message"></RadzenText>
+        </RadzenStack>, new DialogOptions { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+    }
+
 }

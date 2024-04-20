@@ -1,27 +1,66 @@
 ﻿using System.Configuration;
+using System.Drawing;
 using MapaAndMaya.Services.DB;
 using MapaAndMaya.Services.Models;
+using MapaAndMaya.Services.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
 using Xunit;
+using Xunit.Abstractions;
+using Faculty = MapaAndMaya.Services.Models.Faculty;
 
 namespace MapaAndMaya.Services.Tests;
 
 
 public class FacultyServiceTest
 {
-    
-    [Fact]
-    public  void FindAll()
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public FacultyServiceTest(ITestOutputHelper testOutputHelper)
     {
-        var serviceCollection = new ServiceCollection();
-        var serviceProvider = serviceCollection.BuildServiceProvider();
-        var service = serviceProvider.GetRequiredService<FacultyService>();
-        var colection = service.FindAll().Result;
-        Console.WriteLine(colection.First(e => e.Id == 1));
+        _testOutputHelper = testOutputHelper;
+    }
+
+    [Fact]
+    public async void Insert()
+    {
+        MapaAndMayaDbContextFactory factory = new MapaAndMayaDbContextFactory();
+        MapaAndMayaDbContext context = factory.CreateDbContext(new []{" "});
         
-        Assert.True(colection.Any());
+        FacultyService service = new FacultyService(new NullLogger<FacultyService>(),context);
+
+      ActionResult<Faculty> result = await service.Create(new FacultyViewModel
+        {    
+            Name = "Facultad Nueva"
+        });
+      _testOutputHelper.WriteLine(result.Result.Id.ToString());
+      if (!result.Status)
+      {
+          foreach (var error in result.Errors)
+          {
+              _testOutputHelper.WriteLine(error);
+          }
+      }
+      Assert.True(result.Result.Id > 0 );
+    }
+
+    [Fact]
+    public async void FindAll()
+    {
+        MapaAndMayaDbContextFactory factory = new MapaAndMayaDbContextFactory();
+        MapaAndMayaDbContext context = factory.CreateDbContext(new []{" "});
+        
+        FacultyService service = new FacultyService(new NullLogger<FacultyService>(),context);
+
+        Faculty? list = await service.Find(30);
+        
+        
+            _testOutputHelper.WriteLine($"{list.Id} {list.Name}");
+       
+        Assert.NotNull(list);
     }
     }
     

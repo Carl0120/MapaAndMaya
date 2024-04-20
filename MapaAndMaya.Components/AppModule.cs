@@ -19,30 +19,25 @@ public class AppModule : IAppModule
         IConfigurationSection globalConfiguration)
     {
         services.AddRadzenComponents();
-        var connectionString = configuration.GetSection("ConectionString").Value ?? throw new Exception("Connection String Not Found");
+        var connectionString = configuration.GetSection("ConectionString").Value ??
+                               throw new Exception("Connection String Not Found");
 
         services.AddDbContextFactory<MapaAndMayaDbContext>(optionsAction =>
         {
-            optionsAction.UseNpgsql(connectionString, builder =>
-                {
-                    builder.MigrationsAssembly("MapaAndMaya.PostGresSql.Migrations");
-                }
+            optionsAction.UseNpgsql(connectionString,
+                builder => { builder.MigrationsAssembly("MapaAndMaya.PostGresSql.Migrations"); }
             );
-        });
-        
+        }, ServiceLifetime.Scoped);
+
         //Add Services
         services.AddScoped<FacultyService>();
-
     }
 
     public void InitModule(IServiceProvider services)
     {
-     var dbContext = services.GetRequiredService<MapaAndMayaDbContext>();   
-     dbContext.Database.Migrate();
-     
-      if (services.GetRequiredService<IHostingEnvironment>().IsDevelopment())
-      {
-         DbInitializer.Initialize(dbContext);
-      }
+        var dbContext = services.GetRequiredService<MapaAndMayaDbContext>();
+        dbContext.Database.Migrate();
+
+        if (services.GetRequiredService<IHostingEnvironment>().IsDevelopment()) DbInitializer.Initialize(dbContext);
     }
 }
