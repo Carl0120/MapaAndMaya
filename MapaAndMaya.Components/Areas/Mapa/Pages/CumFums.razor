@@ -1,0 +1,75 @@
+﻿@page "/mapa/cum-fum"
+@layout MapaLayout
+@using MapaAndMaya.Services;
+@using MapaAndMaya.Services.Models;
+@using Microsoft.Extensions.Logging
+
+
+@inject CumFumService CumFumService;
+@inject DialogService DialogService;
+@inject NotificationService NotificationService;
+@inject NavigationManager  NavigationManager;
+@inject ILogger<CumFums> Logger;
+
+<PageTitle>CUM-FUM</PageTitle>
+<RadzenRow>
+    <RadzenColumn Size="12">
+        <RadzenText Text="Cums y Fums de la universidad de Matanzas" TextStyle="TextStyle.H3" TagName="TagName.H1"/>
+    </RadzenColumn>
+</RadzenRow>
+<RadzenPanel>
+    <HeaderTemplate>
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Right">
+            <RadzenButton Icon="add_circle_outline" Text="Agregar" ButtonStyle="ButtonStyle.Primary" Click="@AddItem" class="my-3"/>
+            <RadzenButton Icon="delete_forever" Text="Eliminar" Click="@DeleteItems" class="my-3" ButtonStyle="ButtonStyle.Danger" Disabled="@(SelectedCumFums == null || SelectedCumFums.Count == 0)"/>
+        </RadzenStack>
+    </HeaderTemplate>
+    <ChildContent>
+        <RadzenDataGrid @ref=_grid Data="@CumFumCollection" TItem="CumFum"  AllowPaging="true" Style="border-color:var(--rz-black)" 
+                        PageSize="8" PagerHorizontalAlign="HorizontalAlign.Center" IsLoading="@_isLoading"
+                        AllowSorting="true" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@SelectedCumFums">
+            <Columns>
+                <RadzenDataGridColumn TItem="CumFum" Width="60px" Sortable="false" Filterable="false">
+                    <HeaderTemplate>
+                        <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string, object> { { "aria-label", "Select all items" } })"
+                                        Value="@(SelectedCumFums == null || SelectedCumFums?.Any() != true ? false : !CumFumCollection.All(i => SelectedCumFums.Contains(i)) ? null : CumFumCollection.Any(i => SelectedCumFums.Contains(i)))"
+                                        Change="@(args => SelectedCumFums = args == true ? CumFumCollection.ToList() : null)"/>
+                    </HeaderTemplate>
+                    <Template Context="data">
+                        <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(SelectedCumFums != null && SelectedCumFums.Contains(data))" InputAttributes="@(new Dictionary<string, object> { { "aria-label", "Select item" } })"
+                                        TValue="bool"/>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CumFum" Property="Name" Title="Nombre" />
+                <RadzenDataGridColumn TItem="CumFum" Context="data" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="156px">
+                                    <Template Context="data">
+                                        <RadzenButton Icon="open_in_new" ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                      Click="@(_ => NavigationManager.NavigateTo($"/mapa/cum-fum/{data.Id}/courses"))" @onclick:stopPropagation="true">
+                                        </RadzenButton>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CumFum" Context="data" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="156px">
+                    <Template Context="data">
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                      Click="@(_ => EditItem(data))" @onclick:stopPropagation="true">
+                        </RadzenButton>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </ChildContent>
+</RadzenPanel>
+
+@code {
+    
+  
+
+    private async Task BusyDialog(string message)
+    {
+        await DialogService.OpenAsync("", _ =>
+            @<RadzenStack AlignItems="AlignItems.Center" Gap="2rem" Class="rz-p-12">
+                <RadzenText TextStyle="TextStyle.H6" Text="@message"></RadzenText>
+        </RadzenStack>, new DialogOptions { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+    }
+
+}

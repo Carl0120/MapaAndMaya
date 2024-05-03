@@ -11,13 +11,15 @@ public enum AccreditationStatus
 
 public class Degree
 {
-    public int Id { get; set; }
-
-    [MaxLength(100)] public string Name { get; set; }
-
+    public int Id { get; init; }
+    
+    public string Name { get; set; } = "";
+    
     public AccreditationStatus? AccreditationStatus { get; set; }
-
+    
     public int FacultyId { get; set; }
 
-    public Faculty Faculty { get; set; }
+    public Faculty? Faculty { get; set; }
+
+    public ICollection<Course> Courses { get; } = new List<Course>();
 }

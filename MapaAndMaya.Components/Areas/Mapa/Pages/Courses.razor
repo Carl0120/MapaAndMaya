@@ -1,0 +1,165 @@
+﻿@page "/mapa/cum-fum/{cumFumId:int}/courses"
+@layout MapaLayout
+@using MapaAndMaya.Services;
+@using Microsoft.Extensions.Logging
+@using Group = MapaAndMaya.Services.Models.Group
+@using  MapaAndMaya.Services.Models
+
+
+@inject CourseService CourseService;
+@inject CumFumService CumFumService;
+@inject DialogService DialogService;
+@inject NotificationService NotificationService;
+@inject ILogger<Courses> Logger;
+
+<RadzenRow>
+    <RadzenColumn Size="12">
+        <RadzenText Text="Cursos" TextStyle="TextStyle.H3" TagName="TagName.H1"/>
+    </RadzenColumn>
+</RadzenRow>
+<RadzenCard>
+                <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H3">CUM-FUM</RadzenText>
+                <RadzenDropDown Style="width:300px" TValue="int" @bind-Value="cumFumId" Placeholder="Se cargarán todos si no elige uno " AllowFiltering="true"  AllowClear=true 
+                    Data="@(cumFums)" TextProperty="Name" ValueProperty="Id" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Seleccione un Cum-Fum" }})"
+                        Change="@( args => { })"/>
+ <RadzenButton Icon="cached" Text="Cargar" ButtonStyle="ButtonStyle.Secondary" Click="@Refresh" class="my-3"/>
+                </RadzenCard>
+
+<RadzenPanel>
+    <HeaderTemplate>
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Right">
+            <RadzenButton Icon="add_circle_outline" Text="Agregar" ButtonStyle="ButtonStyle.Primary" Click="@AddItem" class="my-3"/>
+            <RadzenButton Icon="delete_forever" Text="Eliminar" Click="@DeleteItems" class="my-3" ButtonStyle="ButtonStyle.Danger" Disabled="@(SelectedItems == null || SelectedItems.Count == 0)"/>
+            </RadzenStack>
+    </HeaderTemplate>
+     <ChildContent>
+            <RadzenDataGrid @ref=_grid Data="@ItemsCollection" TItem="Course"  AllowPaging="true"  AllowColumnResize="true" style="box-shadow: var(--rz-shadow-5);"
+                            PageSize="10" PagerHorizontalAlign="HorizontalAlign.Left" IsLoading="@_isLoading"
+                            ShowPagingSummary="true" PagingSummaryFormat="Página {0} de {1} <b>(total {2} columnas)</b>" PageSizeOptions="@(new int[] { 5, 10, 20, 30 })"
+                            AllowFiltering="true"  FilterMode="FilterMode.Advanced" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+                            LogicalFilterOperator="LogicalFilterOperator.And" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                            AllowSorting="true" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@SelectedItems" ExpandMode="DataGridExpandMode.Multiple"
+                            Density="Density.Compact">
+                <EmptyTemplate>
+                    <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Nada que mostrar.</p>
+                </EmptyTemplate>
+                <Template Context="data">
+                <RadzenCard Style="margin-bottom:20px; padding-right:20px;">
+                           
+                    <p>Grupos del curso </p>
+                    <div class="rz-ml-6 rz-mr-12">
+                            <RadzenDataGrid AllowFiltering="true" AllowPaging="true" AllowSorting="true" Data="@data.Groups" >
+                                                                 <EmptyTemplate>
+                                                                              <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Sin grupos que mostrar.</p>
+                                                                   </EmptyTemplate>
+                                                                    <Columns>
+                                                                        <RadzenDataGridColumn TItem="Group" Property="AcademicYear" Title="Año académico" />
+                                                                        <RadzenDataGridColumn TItem="Group" Property="Enrollment" Title="Matricula" />
+                                                                        <RadzenDataGridColumn TItem="Group" Context="group" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="80px">
+                                                                                                <Template Context="group">
+                                                                                                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                                                                                  Click="@(_=>EditGroup(group))" @onclick:stopPropagation="true">
+                                                                                                    </RadzenButton>
+                                                                                                </Template>
+                                                                                            </RadzenDataGridColumn>
+                                                                                            <RadzenDataGridColumn TItem="Group" Context="group" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="80px">
+                                                                                                                                                                                            <Template Context="group">
+                                                                                                                                                                                                <RadzenButton Icon="delete_forever" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                                                                                                                                                                                              Click="@(_=>DeleteGroup(group))" @onclick:stopPropagation="true">
+                                                                                                                                                                                                </RadzenButton>
+                                                                                                                                                                                            </Template>
+                                                                                                                                                                                        </RadzenDataGridColumn>
+                                                                    </Columns>
+                                                                </RadzenDataGrid>
+                                                                </div>
+                        </RadzenCard>
+                                
+                                    
+                                    
+                    </Template>
+                <Columns>
+                    <RadzenDataGridColumn TItem="Course" Width="60px" Sortable="false" Filterable="false">
+                        <HeaderTemplate>
+                            <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string, object> { { "aria-label", "Select all items" } })"
+                                            Value="@(SelectedItems == null || SelectedItems?.Any() != true ? false : !ItemsCollection.All(i => SelectedItems.Contains(i)) ? null : ItemsCollection.Any(i => SelectedItems.Contains(i)))"
+                                            Change="@(args => SelectedItems = args == true ? ItemsCollection.ToList() : null)"/>
+                        </HeaderTemplate>
+                        <Template Context="data">
+                            <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(SelectedItems != null && SelectedItems.Contains(data))" InputAttributes="@(new Dictionary<string, object> { { "aria-label", "Select item" } })"
+                                            TValue="bool"/>
+                        </Template>
+                    </RadzenDataGridColumn>
+                   
+                    <RadzenDataGridColumn TItem="Course" Property="Degree.Name" Title="Carrera"/>
+                    <RadzenDataGridColumn TItem="Course" Property="Modality.Name" Title="Modalidad" Sortable="true" />
+                    <RadzenDataGridColumn TItem="Course" Property="Degree.Faculty.Name" Title="Facultad" Sortable="true" />
+                    <RadzenDataGridColumn TItem="Course" Property="YearsNumber" Title="Número de años" Sortable="true" />
+                    <RadzenDataGridColumn TItem="Course" Property="Enrollment" Title="Matrícula"  Sortable="true"> 
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Course" Context="data" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="80px">
+                        <Template Context="data">
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                          Click="@(_ => EditItem(data))" @onclick:stopPropagation="true">
+                            </RadzenButton>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </ChildContent>
+</RadzenPanel>
+
+
+@code {
+     
+    [Parameter]
+    public int cumFumId {get; set;}
+
+      IEnumerable<CumFum> cumFums;
+    
+
+    private async Task ShowFormularyDialog(Action onSummit, string title)
+    {
+        
+        var result = await DialogService.OpenAsync(title, ds =>
+                @<EditForm Model="@ItemViewModel" OnValidSubmit="@onSummit">
+                    <DataAnnotationsValidator/>
+                    <div class="container-fluid">
+                        <div class="row ">
+                            <div class="col-md-6 pb-3">
+                            <RadzenLabel Component="Name" Text="Nombre de el Grupo:"/> <br/>
+                                <RadzenTextBox @bind-Value="ItemViewModel.Name" Style="width: 200px;"/>
+                                <ValidationMessage For="@(() => ItemViewModel.Name)"/>
+                            </div>
+                            <div class="col-md-6 pb-3">
+                                <RadzenLabel Component="DropDownFaculties" Text="Facultad a la que pertenece:"/> <br/>
+                                 <RadzenDropDown @bind-Value="ItemViewModel.FacultyId" Data=@ItemList TextProperty="Name" ValueProperty="Id" Style="width: 100%; max-width: 400px;" Name="DropDownFaculties" />
+                                <ValidationMessage For="@(() => ItemViewModel.FacultyId)"/>
+                                </div>
+                        </div>
+                    </div>
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
+                        <RadzenButton ButtonType="ButtonType.Submit" Text="Guardar" Icon="save" class="me-1"/>
+                        <RadzenButton Text="Cancelar" Icon="clear" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Light" class="me-1"/>
+            </RadzenStack>
+            </EditForm>
+            , new DialogOptions { Width = $"{800}px" }
+        );
+    }
+
+    private async Task BusyDialog(string message)
+    {
+        await DialogService.OpenAsync("", _ =>
+            @<RadzenStack AlignItems="AlignItems.Center" Gap="2rem" Class="rz-p-12">
+                <RadzenText TextStyle="TextStyle.H6" Text="@message"></RadzenText>
+        </RadzenStack>, new DialogOptions { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+    }
+    
+    private async void Refresh()
+    {
+        _isLoading = true;
+        ItemsCollection = await CourseService.Get(cumFumId);
+        _grid.Reload();
+        _isLoading = false;
+        StateHasChanged();
+    }
+}

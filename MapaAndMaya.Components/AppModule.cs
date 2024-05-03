@@ -31,6 +31,9 @@ public class AppModule : IAppModule
 
         //Add Services
         services.AddScoped<FacultyService>();
+        services.AddScoped<DegreeService>();
+        services.AddScoped<CourseService>();
+        services.AddScoped<CumFumService>();
     }
 
     public void InitModule(IServiceProvider services)
@@ -38,6 +41,6 @@ public class AppModule : IAppModule
         var dbContext = services.GetRequiredService<MapaAndMayaDbContext>();
         dbContext.Database.Migrate();
 
-        if (services.GetRequiredService<IHostingEnvironment>().IsDevelopment()) DbInitializer.Initialize(dbContext);
+        if (services.GetRequiredService<IHostingEnvironment>().IsDevelopment()) DbInitializer.InitializeCentral(dbContext);
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Radzen;
 using Radzen.Blazor;
 
-namespace MapaAndMaya.Components.Areas.Pages;
+namespace MapaAndMaya.Components.Areas.Central.Pages;
 
 public partial class Faculties
 {
@@ -141,8 +141,8 @@ public partial class Faculties
     private  void NotifyErrors( string title , List<string> errors)
     {
         foreach (var error  in errors) 
-            NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = title, Detail = error, CloseOnClick = true, Duration = 5000, Style = "width: 400px;" });
+           NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = title, Detail = error, CloseOnClick = true, Duration = 5000, Style = "width: 400px;" });
         
-        DialogService.Close();
+       DialogService.Close();
     }
 }

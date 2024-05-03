@@ -18,4 +18,10 @@
         <ProjectReference Include="..\EIS.Core.Services\EIS.Core.Services.csproj"/>
         <ProjectReference Include="..\MapaAndMaya.Services\MapaAndMaya.Services.csproj"/>
     </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Areas\Central\Pages\Degrees.razor" />
+      <AdditionalFiles Include="Areas\Central\Pages\Faculties.razor" />
+      <AdditionalFiles Include="Areas\Mapa\Pages\Home.razor" />
+    </ItemGroup>
 </Project>

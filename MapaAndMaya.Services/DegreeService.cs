@@ -8,28 +8,29 @@ using Microsoft.Extensions.Logging;
 
 namespace MapaAndMaya.Services;
 
-public class FacultyService : ICrudService<Faculty,FacultyViewModel>
+public class DegreeService : ICrudService<Degree,DegreeViewModel>
 {
     private readonly ILogger<FacultyService> _logger;
 
     private readonly MapaAndMayaDbContext _dbContext;
 
-    public FacultyService(ILogger<FacultyService> logger, MapaAndMayaDbContext dbContext)
+    public DegreeService(ILogger<FacultyService> logger, MapaAndMayaDbContext dbContext)
     {
         this._logger = logger;
         _dbContext = dbContext;
     }
 
-    public async Task<ActionResult<Faculty>> Create(FacultyViewModel model)
+    public async Task<ActionResult<Degree>> Create(DegreeViewModel model)
     {
-        var anyTask = _dbContext.Faculties.AnyAsync(p => p.Name == model.Name);
+        var nameTask = _dbContext.Degrees.AnyAsync(e => e.Name == model.Name);
+        var facultyTask = _dbContext.Faculties.AnyAsync(e => e.Id == model.FacultyId);
         
-        ActionResult<Faculty> result = new ActionResult<Faculty>();
+        ActionResult<Degree> result = new ActionResult<Degree>();
         
-        if (await anyTask)
-        {
-            result.Errors.Add("Ya existe una facultad con ese nombre");
-        }
+        if (await nameTask) result.Errors.Add("Ya existe una carrera con ese nombre");
+        
+        if (!await facultyTask) result.Errors.Add("La facultad a la que hace referencia no existe");
+        
         if (result.Errors.Any())
         {
             result.Status = false;
@@ -38,12 +39,12 @@ public class FacultyService : ICrudService<Faculty,FacultyViewModel>
             return result;
         }
 
-        Faculty entity = new Faculty();
+        Degree entity = new Degree();
         model.CopyToEntity(entity);
         
         try
         {
-            EntityEntry<Faculty> resp = _dbContext.Faculties.Add(entity);
+            EntityEntry<Degree> resp = _dbContext.Degrees.Add(entity);
             await _dbContext.SaveChangesAsync();
             result.Title = "Exito";
             result.Severity = NotifySeverity.Succes;
@@ -62,19 +63,20 @@ public class FacultyService : ICrudService<Faculty,FacultyViewModel>
         }
 
     }
-    
-    public async Task<ActionResult<Faculty>> Update(FacultyViewModel model)
+
+    public async Task<ActionResult<Degree>> Update(DegreeViewModel model)
     {
-        var findTask = _dbContext.Faculties.FindAsync(model.Id);
+       
+        var findTask = _dbContext.Degrees.FindAsync(model.Id);
+        var facultyTask = _dbContext.Faculties.AnyAsync(e => e.Id == model.FacultyId);
         
-        ActionResult<Faculty> result = new ActionResult<Faculty>();
+        ActionResult<Degree> result = new ActionResult<Degree>();
         
-        Faculty? entity = await findTask;
+        Degree? entity = await findTask;
         
-        if (entity == null)
-        {
-            result.Errors.Add("No se encuentra la facultad");
-        }
+        if (entity == null) result.Errors.Add("No se encuentra la Carrera");
+        
+        if (!await facultyTask) result.Errors.Add("La facultad a la que hace referencia no existe");
         
         if (result.Errors.Any())
         {
@@ -87,7 +89,7 @@ public class FacultyService : ICrudService<Faculty,FacultyViewModel>
         model.CopyToEntity(entity!);
         try
         {
-            _dbContext.Faculties.Update(entity!);
+            _dbContext.Degrees.Update(entity!);
             await _dbContext.SaveChangesAsync();
             result.Title = "Exito";
             result.Severity = NotifySeverity.Succes;
@@ -104,19 +106,18 @@ public class FacultyService : ICrudService<Faculty,FacultyViewModel>
             result.Errors.Add(ex.Message);
             return result;
         }
-
     }
 
-    public async Task<ActionResult<Faculty>> Delete(Faculty entity)
+    public async Task<ActionResult<Degree>> Delete(Degree entity)
     {
-        ActionResult<Faculty> result = new ActionResult<Faculty>();
+        ActionResult<Degree> result = new ActionResult<Degree>();
         
         try
         {
-            Faculty? item = await _dbContext.Faculties.FindAsync(entity.Id);
+            Degree? item = await _dbContext.Degrees.FindAsync(entity.Id);
             if (item != null)
             {
-                _dbContext.Faculties.Remove(item);
+                _dbContext.Degrees.Remove(item);
                 await _dbContext.SaveChangesAsync(); 
             }
             result.Status = true;
@@ -134,30 +135,30 @@ public class FacultyService : ICrudService<Faculty,FacultyViewModel>
             result.Errors.Add(ex.Message);
             return result;
         }
-        
     }
-    
-    public async Task<ICollection<Faculty>> FindAll()
+
+    public async Task<ICollection<Degree>> FindAll()
     {
         try
         {
-            var listTask =  _dbContext.Faculties.AsNoTracking().ToListAsync();
+            var listTask =  _dbContext.Degrees.AsNoTracking()
+                .Include(e=>e.Faculty).ToListAsync();
             
             return await listTask;
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            return new List<Faculty>();
+            return new List<Degree>();
         }
     }
 
-    public async Task<Faculty?> Find(int id)
+    public async Task<Degree?> Find(int id)
     {
         try
         {
-            var itemTask = _dbContext.Faculties
-                 .FirstOrDefaultAsync(e => e.Id == id);
+            var itemTask = _dbContext.Degrees.Include(e=>e.Faculty)
+                .FirstOrDefaultAsync(e => e.Id == id);
             return await itemTask;
 
         }
@@ -168,4 +169,21 @@ public class FacultyService : ICrudService<Faculty,FacultyViewModel>
         }
     }
     
+    public async Task<ICollection<Degree>> FindByFaculty(int facultyId)
+    {
+        try
+        {
+            var listTask =  _dbContext.Degrees.AsNoTracking()
+                .Include(e=>e.Faculty)
+                .Where(e =>e.FacultyId == facultyId)
+                .ToListAsync();
+            
+            return await listTask;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return new List<Degree>();
+        }
+    }
 }

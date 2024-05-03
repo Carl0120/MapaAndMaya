@@ -1,4 +1,4 @@
-@page "/faculty"
+@page "/faculties"
 @layout MMLayout
 @using MapaAndMaya.Services;
 @using MapaAndMaya.Services.Models;
@@ -12,7 +12,7 @@
 
 
 
-<PageTitle>Faculty</PageTitle>
+<PageTitle>Facultades</PageTitle>
 <RadzenRow>
     <RadzenColumn Size="12">
         <RadzenText Text="Facultades" TextStyle="TextStyle.H3" TagName="TagName.H1"/>
@@ -27,7 +27,7 @@
     </HeaderTemplate>
     <ChildContent>
         <RadzenDataGrid @ref=_grid Data="@FacultiesCollection" TItem="Faculty"  AllowPaging="true" 
-                        PageSize="5" PagerHorizontalAlign="HorizontalAlign.Center" IsLoading="@_isLoading"
+                        PageSize="8" PagerHorizontalAlign="HorizontalAlign.Center" IsLoading="@_isLoading"
                         AllowSorting="true" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@SelectedFaculties">
             <Columns>
                 <RadzenDataGridColumn TItem="Faculty" Width="60px" Sortable="false" Filterable="false">

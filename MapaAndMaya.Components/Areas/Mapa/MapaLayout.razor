@@ -9,18 +9,16 @@
             <RadzenColumn Size="7">
                 <RadzenStack AlignItems="AlignItems.End" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
                     <RadzenMenu Style="width: 552px; height: 50px">
-                        <RadzenMenuItem Text="General" Icon="home" Path=""></RadzenMenuItem>
-                        <RadzenMenuItem Text="Facultades" Path="faculties" Icon="account_circle"></RadzenMenuItem>
-                        <RadzenMenuItem Text="Carreras" Path="degrees" Icon="line_weight"></RadzenMenuItem>
-                        <RadzenMenuItem Text="Cum-Fum" Path="cum-fum" Icon="apartment"></RadzenMenuItem>
-                        <RadzenMenuItem Text="Dialog" Path="dialog" Icon="perm_media"></RadzenMenuItem>
-                        <RadzenMenuItem Text="Notification" Path="notification" Icon="announcement"></RadzenMenuItem>
-                    </RadzenMenu>
+                    <RadzenMenuItem Text="Rais" Icon="perm_media" Path=""></RadzenMenuItem>
+                        <RadzenMenuItem Text="Home" Icon="home" Path="mapa"></RadzenMenuItem>
+                        <RadzenMenuItem Text="Cum-Fum" Path="mapa/cum-fum" Icon="apartment"></RadzenMenuItem>
+                         <RadzenMenuItem Text="Cursos" Path="/mapa/cum-fum/courses" Icon="course"></RadzenMenuItem>
+                        </RadzenMenu>
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>
     </RadzenHeader>
-    <RadzenBody class="rz-background-color-secondary-light">
+    <RadzenBody class="rz-background-color-base-400">
         <RadzenRow class="rz-mx-auto rz-px-4 rz-pt-2 rz-pt-md-4 rz-pt-lg-6 rz-pt-xl-12 rz-pb-2 rz-pb-lg-12" Style="max-width: 1440px;">
             <RadzenColumn Size="12">
                 @Body

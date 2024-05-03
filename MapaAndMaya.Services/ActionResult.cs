@@ -14,7 +14,7 @@ namespace MapaAndMaya.Services
     {
         public bool Status { get; set; }
         public string Title { get; set; } = String.Empty;
-        public T Result { get; set; }
+        public T? Result { get; set; }
         public NotifySeverity Severity { get; set; }
         public List<string> Errors { get; } = new List<string>();
         
