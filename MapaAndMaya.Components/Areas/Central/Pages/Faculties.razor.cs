@@ -43,7 +43,7 @@ public partial class Faculties
             ActionResult<Faculty> response =  await FacultyService.Create(FacultyViewModel);
             if (response.Status)
             { 
-                FacultiesCollection.Add(response.Result);
+                FacultiesCollection.Add(response.Element);
                 NotifyOk(response.Title);
             }
             else
@@ -59,7 +59,7 @@ public partial class Faculties
 
     private async void EditItem(Faculty item)
     {
-           StateHasChanged();
+           
             FacultyViewModel = new FacultyViewModel
             {
                 Id = item.Id,
@@ -79,7 +79,8 @@ public partial class Faculties
             var response =  await FacultyService.Update(FacultyViewModel);
             if (response.Status)
             {
-                FacultiesCollection.First(fa => fa.Id == response.Result.Id).Name = response.Result.Name;
+                if (response.Element != null)
+                    FacultiesCollection.First(fa => fa.Id == response.Element.Id).Name = response.Element.Name;
                 NotifyOk(response.Title);
             }
             else
@@ -113,7 +114,7 @@ public partial class Faculties
                         if (response.Status)
                         {
                            
-                            FacultiesCollection.Remove(response.Result);
+                            FacultiesCollection.Remove(response.Element);
                             NotifyOk(response.Title);
                         }
                         else

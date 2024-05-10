@@ -22,20 +22,18 @@ public class DegreeService : ICrudService<Degree,DegreeViewModel>
 
     public async Task<ActionResult<Degree>> Create(DegreeViewModel model)
     {
-        var nameTask = _dbContext.Degrees.AnyAsync(e => e.Name == model.Name);
-        var facultyTask = _dbContext.Faculties.AnyAsync(e => e.Id == model.FacultyId);
+        var name = await _dbContext.Degrees.AnyAsync(e => e.Name == model.Name);
+        var faculty = await _dbContext.Faculties.AnyAsync(e => e.Id == model.FacultyId);
         
         ActionResult<Degree> result = new ActionResult<Degree>();
         
-        if (await nameTask) result.Errors.Add("Ya existe una carrera con ese nombre");
+        if ( name) result.Errors.Add("Ya existe una carrera con ese nombre");
         
-        if (!await facultyTask) result.Errors.Add("La facultad a la que hace referencia no existe");
+        if (!faculty) result.Errors.Add("La facultad a la que hace referencia no existe");
         
         if (result.Errors.Any())
         {
-            result.Status = false;
-            result.Severity = NotifySeverity.Warning;
-            result.Title = "Accion Inválida";
+            result.CreateResponseInvalidAction();
             return result;
         }
 
@@ -46,19 +44,13 @@ public class DegreeService : ICrudService<Degree,DegreeViewModel>
         {
             EntityEntry<Degree> resp = _dbContext.Degrees.Add(entity);
             await _dbContext.SaveChangesAsync();
-            result.Title = "Exito";
-            result.Severity = NotifySeverity.Succes;
-            result.Status = true;
-            result.Result = resp.Entity;
+            result.CreateResponseSuccess(resp.Entity);
             return result;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
-            result.Title = "Fallo";
-            result.Severity = NotifySeverity.Error;
-            result.Status = false;
-            result.Errors.Add((ex.Message));
+            result.CreateResponseFail(ex);
             return result;
         }
 
@@ -68,7 +60,6 @@ public class DegreeService : ICrudService<Degree,DegreeViewModel>
     {
        
         var findTask = _dbContext.Degrees.FindAsync(model.Id);
-        var facultyTask = _dbContext.Faculties.AnyAsync(e => e.Id == model.FacultyId);
         
         ActionResult<Degree> result = new ActionResult<Degree>();
         
@@ -76,13 +67,9 @@ public class DegreeService : ICrudService<Degree,DegreeViewModel>
         
         if (entity == null) result.Errors.Add("No se encuentra la Carrera");
         
-        if (!await facultyTask) result.Errors.Add("La facultad a la que hace referencia no existe");
-        
         if (result.Errors.Any())
         {
-            result.Status = false;
-            result.Severity = NotifySeverity.Warning;
-            result.Title = "Accion Inválida";
+            result.CreateResponseInvalidAction();
             return result;
         }
       
@@ -91,19 +78,13 @@ public class DegreeService : ICrudService<Degree,DegreeViewModel>
         {
             _dbContext.Degrees.Update(entity!);
             await _dbContext.SaveChangesAsync();
-            result.Title = "Exito";
-            result.Severity = NotifySeverity.Succes;
-            result.Status = true;
-            result.Result = entity;
+            result.CreateResponseSuccess(entity!);
             return result;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
-            result.Title = "Fallo";
-            result.Severity = NotifySeverity.Error;
-            result.Status = false;
-            result.Errors.Add(ex.Message);
+            result.CreateResponseFail(ex);
             return result;
         }
     }
@@ -120,19 +101,13 @@ public class DegreeService : ICrudService<Degree,DegreeViewModel>
                 _dbContext.Degrees.Remove(item);
                 await _dbContext.SaveChangesAsync(); 
             }
-            result.Status = true;
-            result.Title = "Exito";
-            result.Severity = NotifySeverity.Succes;
-            result.Result = entity;
+            result.CreateResponseSuccess(entity);
             return result;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
-            result.Title = "Fallo";
-            result.Severity = NotifySeverity.Error;
-            result.Status = false;
-            result.Errors.Add(ex.Message);
+            result.CreateResponseFail(ex);
             return result;
         }
     }

@@ -15,6 +15,7 @@ public class MapaAndMayaDbContext : DbContext
     public DbSet<Course>  Courses { get; set;}
     public DbSet<Town> Towns { get; set; }
     public DbSet<CumFum> CumFums { get; set; }
+    public DbSet<CourseInCumFum> CourseInCumFums { get; set; }
     public DbSet<Group> Groups { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -45,14 +46,17 @@ public class MapaAndMayaDbContext : DbContext
         modelBuilder.Entity<CumFum>().Property(e => e.Name).HasMaxLength(50);
         modelBuilder.Entity<CumFum>().HasIndex(e =>e.Name).IsUnique();
         
-        //Entity Group
-        modelBuilder.Entity<Group>().HasKey(e=>e.Id);
-        modelBuilder.Entity<Group>().HasIndex(e=> new {e.CumFumId, e.CourseId,e.AcademicYear}).IsUnique();
-        modelBuilder.Entity<Group>().HasOne(e => e.CumFum)
-            .WithMany(e => e.Groups);
-        modelBuilder.Entity<Group>().HasOne(e => e.Course)
-            .WithMany(e => e.Groups);
+        //Entity CourseInCumFum
+        modelBuilder.Entity<CourseInCumFum>().HasKey(e=>e.Id);
+        modelBuilder.Entity<CourseInCumFum>().HasIndex(e=> new {e.CumFumId, e.CourseId}).IsUnique();
+        modelBuilder.Entity<CourseInCumFum>().HasOne(e => e.CumFum)
+            .WithMany(e => e.CourseInCumFum);
+        modelBuilder.Entity<CourseInCumFum>().HasOne(e => e.Course)
+            .WithMany(e => e.CourseInCumFum);
         
+        //Entity Group
+        modelBuilder.Entity<Group>().HasIndex(e => new {e.AcademicYear,e.CourseInCumFumId}).IsUnique();
+        modelBuilder.Entity<Group>().HasKey(e => e.Id);
         base.OnModelCreating(modelBuilder);
     }
 }

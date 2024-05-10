@@ -32,8 +32,9 @@ public class AppModule : IAppModule
         //Add Services
         services.AddScoped<FacultyService>();
         services.AddScoped<DegreeService>();
-        services.AddScoped<CourseService>();
+        services.AddScoped<CourseOfCumFumService>();
         services.AddScoped<CumFumService>();
+        services.AddScoped<GroupService>();
     }
 
     public void InitModule(IServiceProvider services)

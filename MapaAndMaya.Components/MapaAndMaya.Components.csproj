@@ -23,5 +23,10 @@
       <AdditionalFiles Include="Areas\Central\Pages\Degrees.razor" />
       <AdditionalFiles Include="Areas\Central\Pages\Faculties.razor" />
       <AdditionalFiles Include="Areas\Mapa\Pages\Home.razor" />
+      <AdditionalFiles Include="Shared\MMLayout.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Areas\Shared\MMLayout.razor" />
     </ItemGroup>
 </Project>

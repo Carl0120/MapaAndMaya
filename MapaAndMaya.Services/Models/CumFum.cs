@@ -8,5 +8,5 @@ public class CumFum
     
     public Town Town { get; init; } = null!;
 
-    public ICollection<Group> Groups { get; } = new List<Group>();
+    public ICollection<CourseInCumFum> CourseInCumFum { get; } = new List<CourseInCumFum>();
 }

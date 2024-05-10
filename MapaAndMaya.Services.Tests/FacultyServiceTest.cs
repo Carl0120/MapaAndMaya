@@ -36,7 +36,7 @@ public class FacultyServiceTest
         {    
             Name = "Facultad Nueva"
         });
-      _testOutputHelper.WriteLine(result.Result.Id.ToString());
+      _testOutputHelper.WriteLine(result.Element.Id.ToString());
       if (!result.Status)
       {
           foreach (var error in result.Errors)
@@ -44,7 +44,7 @@ public class FacultyServiceTest
               _testOutputHelper.WriteLine(error);
           }
       }
-      Assert.True(result.Result.Id > 0 );
+      Assert.True(result.Element.Id > 0 );
     }
 
     [Fact]

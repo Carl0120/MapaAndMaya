@@ -14,4 +14,8 @@
     <ItemGroup>
         <ProjectReference Include="..\MapaAndMaya.Services\MapaAndMaya.Services.csproj"/>
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Migrations\" />
+    </ItemGroup>
 </Project>

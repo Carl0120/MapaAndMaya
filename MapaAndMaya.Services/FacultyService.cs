@@ -16,7 +16,7 @@ public class FacultyService : ICrudService<Faculty,FacultyViewModel>
 
     public FacultyService(ILogger<FacultyService> logger, MapaAndMayaDbContext dbContext)
     {
-        this._logger = logger;
+        _logger = logger;
         _dbContext = dbContext;
     }
 
@@ -26,15 +26,11 @@ public class FacultyService : ICrudService<Faculty,FacultyViewModel>
         
         ActionResult<Faculty> result = new ActionResult<Faculty>();
         
-        if (await anyTask)
-        {
-            result.Errors.Add("Ya existe una facultad con ese nombre");
-        }
+        if (await anyTask) result.Errors.Add("Ya existe una facultad con ese nombre");
+        
         if (result.Errors.Any())
         {
-            result.Status = false;
-            result.Severity = NotifySeverity.Warning;
-            result.Title = "Accion Inválida";
+            result.CreateResponseInvalidAction();
             return result;
         }
 
@@ -45,19 +41,13 @@ public class FacultyService : ICrudService<Faculty,FacultyViewModel>
         {
             EntityEntry<Faculty> resp = _dbContext.Faculties.Add(entity);
             await _dbContext.SaveChangesAsync();
-            result.Title = "Exito";
-            result.Severity = NotifySeverity.Succes;
-            result.Status = true;
-            result.Result = resp.Entity;
+            result.CreateResponseSuccess(resp.Entity);
             return result;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
-            result.Title = "Fallo";
-            result.Severity = NotifySeverity.Error;
-            result.Status = false;
-            result.Errors.Add((ex.Message));
+           result.CreateResponseFail(ex);
             return result;
         }
 
@@ -74,34 +64,22 @@ public class FacultyService : ICrudService<Faculty,FacultyViewModel>
         if (entity == null)
         {
             result.Errors.Add("No se encuentra la facultad");
-        }
-        
-        if (result.Errors.Any())
-        {
-            result.Status = false;
-            result.Severity = NotifySeverity.Warning;
-            result.Title = "Accion Inválida";
+            result.CreateResponseInvalidAction();
             return result;
         }
-      
-        model.CopyToEntity(entity!);
+        
+        model.CopyToEntity(entity);
         try
         {
-            _dbContext.Faculties.Update(entity!);
+            _dbContext.Faculties.Update(entity);
             await _dbContext.SaveChangesAsync();
-            result.Title = "Exito";
-            result.Severity = NotifySeverity.Succes;
-            result.Status = true;
-            result.Result = entity;
+            result.CreateResponseSuccess(entity);
             return result;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
-            result.Title = "Fallo";
-            result.Severity = NotifySeverity.Error;
-            result.Status = false;
-            result.Errors.Add(ex.Message);
+            result.CreateResponseFail(ex);
             return result;
         }
 
@@ -119,19 +97,13 @@ public class FacultyService : ICrudService<Faculty,FacultyViewModel>
                 _dbContext.Faculties.Remove(item);
                 await _dbContext.SaveChangesAsync(); 
             }
-            result.Status = true;
-            result.Title = "Exito";
-            result.Severity = NotifySeverity.Succes;
-            result.Result = entity;
+            result.CreateResponseSuccess(entity);
             return result;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
-            result.Title = "Fallo";
-            result.Severity = NotifySeverity.Error;
-            result.Status = false;
-            result.Errors.Add(ex.Message);
+           result.CreateResponseFail(ex);
             return result;
         }
         

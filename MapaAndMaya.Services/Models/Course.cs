@@ -18,19 +18,6 @@ public class Course
     
     public Degree? Degree { get; init; }
     
-    public ICollection<Group> Groups { get; } = new List<Group>();
-
-    public int Enrollment
-    {
-        get
-        {
-            int enrollment = 0;
-            foreach (var group in Groups)
-            {
-                enrollment += group.Enrollment;
-            }
-
-            return enrollment;
-        }
-    }
+    public ICollection<CourseInCumFum> CourseInCumFum { get; } = new List<CourseInCumFum>();
+    
 }
