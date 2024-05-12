@@ -9,14 +9,16 @@ public class MapaAndMayaDbContext : DbContext
     {
     }
 
-    public DbSet<Faculty> Faculties { get; set; }
-    public DbSet<Degree> Degrees { get; set; }
-    public DbSet<Modality> Modalities { get; set;}
-    public DbSet<Course>  Courses { get; set;}
-    public DbSet<Town> Towns { get; set; }
-    public DbSet<CumFum> CumFums { get; set; }
-    public DbSet<CourseInCumFum> CourseInCumFums { get; set; }
-    public DbSet<Group> Groups { get; set; }
+    public DbSet<Faculty> Faculties { get; init; }
+    public DbSet<Degree> Degrees { get; init; }
+    public DbSet<Modality> Modalities { get; init;}
+    public DbSet<Course>  Courses { get; init;}
+    public DbSet<Town> Towns { get; init; }
+    public DbSet<CumFum> CumFums { get; init; }
+    public DbSet<CourseInCumFum> CourseInCumFums { get; init; }
+    public DbSet<Group> Groups { get; init; }
+    public DbSet<Subject> Subjects { get; init; }
+    public DbSet<SubjectInCourse> SubjectInCourses { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -57,6 +59,20 @@ public class MapaAndMayaDbContext : DbContext
         //Entity Group
         modelBuilder.Entity<Group>().HasIndex(e => new {e.AcademicYear,e.CourseInCumFumId}).IsUnique();
         modelBuilder.Entity<Group>().HasKey(e => e.Id);
+      
+        //Entity Subject
+        modelBuilder.Entity<Subject>().HasIndex(e => e.Name).IsUnique();
+        modelBuilder.Entity<Subject>().HasKey(e => e.Id);
+        
+        //Entity SubjectInCourse
+        modelBuilder.Entity<SubjectInCourse>().HasKey(e=>e.Id);
+        modelBuilder.Entity<SubjectInCourse>().HasIndex(e=> new {e.CourseId, e.SubjectId}).IsUnique();
+        modelBuilder.Entity<SubjectInCourse>().HasOne(e => e.Course)
+            .WithMany(e => e.SubjectInCourses);
+        modelBuilder.Entity<SubjectInCourse>().HasOne(e => e.Subject)
+            .WithMany(e => e.SubjectInCourses);
+        
+        
         base.OnModelCreating(modelBuilder);
     }
 }

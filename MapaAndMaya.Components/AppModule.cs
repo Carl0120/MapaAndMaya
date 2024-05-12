@@ -35,6 +35,7 @@ public class AppModule : IAppModule
         services.AddScoped<CourseOfCumFumService>();
         services.AddScoped<CumFumService>();
         services.AddScoped<GroupService>();
+        services.AddScoped<SubjectInCourseService>();
     }
 
     public void InitModule(IServiceProvider services)
