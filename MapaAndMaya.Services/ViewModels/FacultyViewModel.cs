@@ -10,5 +10,5 @@ public class FacultyViewModel
     [RegularExpression(@"^[a-zA-Z\süÜáéíóúÁÉÍÓÚñÑüÜ]+$", ErrorMessage = "El campo nombre debe contener solo letras")]
     [MaxLength(50, ErrorMessage = "El campo Nombre no debe tener más de 50 caracteres.")]
     [MinLength(5, ErrorMessage = "El campo Nombre no debe tener menos de 5 caracteres.")]
-    public string Name { get; set; }
+    public string Name { get; set; } = "";
 }

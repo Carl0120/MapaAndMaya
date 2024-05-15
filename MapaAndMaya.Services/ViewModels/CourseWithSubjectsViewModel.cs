@@ -31,25 +31,5 @@ public class CourseWithSubjectsViewModel
     public Degree Degree { get; set; }
 
     public ICollection<SubjectsByYearViewModel> SubjectsByYears { get; }
-
-    public static CourseWithSubjectsViewModel Generate(Course entity)
-    {
-        List<SubjectsByYearViewModel> list = new List<SubjectsByYearViewModel>();
-        for (int i = 0; i < entity.YearsNumber; i++)
-        {
-            list.Add(new SubjectsByYearViewModel
-            {
-                Year = i
-            });
-        }
-        CourseWithSubjectsViewModel model = new CourseWithSubjectsViewModel
-        (
-            entity.Id,
-            entity.YearsNumber,
-            entity.Modality ?? throw new InvalidOperationException(),
-            entity.Degree ?? throw new InvalidOperationException(),
-            list
-        );
-        return model;
-    }
+    
 }

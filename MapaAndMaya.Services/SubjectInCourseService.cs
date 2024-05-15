@@ -9,6 +9,7 @@ namespace MapaAndMaya.Services;
 
 public class SubjectInCourseService
 {
+    
     private readonly ILogger<SubjectInCourseService> _logger;
 
     private readonly MapaAndMayaDbContext _dbContext;
@@ -26,6 +27,8 @@ public class SubjectInCourseService
             Course? course = await _dbContext.Courses
                 .Include(e=>e.Degree)
                 .Include(e=>e.Modality)
+                .Include(e=>e.SubjectInCourses)
+                .ThenInclude(e=>e.Subject)
                 .FirstOrDefaultAsync(e=>e.Id==courseId);
             if (course == null) return null;
 
@@ -51,7 +54,7 @@ public class SubjectInCourseService
             if (!subjects.Any()) return null;
             
 
-            SubjectsByYearViewModel model = CourseMapper.MapToViewModel(subjects);
+            SubjectsByYearViewModel model = CourseMapper.MapToViewModel(year,subjects);
             return model;
         }
         catch (Exception e)
@@ -60,4 +63,28 @@ public class SubjectInCourseService
             return null;
         }
     }
+   
+    public async Task<ICollection<Course>> GetCourseByFaculty(int facultyId)
+    {
+        try
+        {
+            var query = _dbContext.Courses
+                .Include(e => e.Degree)
+                .Include(e => e.Modality)
+                .Where(course => course.Degree != null && course.Degree.FacultyId == facultyId)
+                .AsNoTracking();
+            return await query.ToListAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return new List<Course>();
+        }
+    }
+
+    public async Task SaveChanges()
+    {
+        await _dbContext.SaveChangesAsync();
+    }
+    
 }

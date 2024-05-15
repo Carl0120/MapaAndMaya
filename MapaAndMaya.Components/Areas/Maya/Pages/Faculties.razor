@@ -1,0 +1,47 @@
+﻿@page "/maya/faculties"
+@layout MayaLayout
+@using MapaAndMaya.Services;
+@using MapaAndMaya.Services.Models;
+
+@inject FacultyService FacultyService;
+@inject NavigationManager NavigationManager;
+
+
+<PageTitle>Facultades</PageTitle>
+<RadzenRow>
+    <RadzenColumn Size="12">
+        <RadzenText Text="Facultades" TextStyle="TextStyle.H3" TagName="TagName.H1"/>
+    </RadzenColumn>
+</RadzenRow>
+<RadzenPanel>
+    <ChildContent>
+        <RadzenDataGrid  Data="@FacultiesCollection" TItem="Faculty"  AllowPaging="true" 
+                        PageSize="8" PagerHorizontalAlign="HorizontalAlign.Center" IsLoading="@_isLoading"
+                        AllowSorting="true"  >
+            <Columns>
+                <RadzenDataGridColumn TItem="Faculty" Property="Name" Title="Nombre"/>
+                <RadzenDataGridColumn TItem="Faculty" Context="data" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="156px">
+                    <Template Context="data">
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                      Click="@(_ => NavigationManager.NavigateTo($"/maya/faculty/{data.Id}/courses"))" @onclick:stopPropagation="true">
+                        </RadzenButton>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </ChildContent>
+</RadzenPanel>
+
+@code {
+    private bool _isLoading;
+    private ICollection<Faculty> FacultiesCollection { get; set; } = new List<Faculty>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+        FacultiesCollection = await FacultyService.FindAll();
+        _isLoading = false;
+        await base.OnInitializedAsync();
+    }
+
+}
