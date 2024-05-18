@@ -5,31 +5,18 @@ namespace MapaAndMaya.Services.Mappers;
 
 public static class Extensions
 {
-    public static void CopyToEntity(this FacultyViewModel model, Faculty entity)
+    public static void ToEntity(this GenericViewModel model, Degree entity)
     {
         entity.Name = model.Name;
     }
-    
-    public static void CopyToEntity(this DegreeViewModel model, Degree entity)
+    public static void ToEntity(this GenericViewModel model, Modality entity)
     {
         entity.Name = model.Name;
-        entity.AccreditationStatus = model.AccreditationStatus;
-        entity.FacultyId = model.FacultyId;
     }
-    
-    public static void CopyToEntity(this GroupToCourseRequest model, Group entity)
+   
+    public static void ToEntity(this GenericViewModel model, NomenclatureBase entity)
     {
-        entity.CourseInCumFumId = model.CourseInCumFumId;
-        entity.AcademicYear = model.AcademicYear;
-        entity.Enrollment = model.Enrollment;
-        entity.AcademicCourse = model.AcademicCourse;
-    }
-
-    public static void Clone(this Group source, Group origin)
-    {
-        source.AcademicYear = origin.AcademicYear;
-        source.Enrollment = origin.Enrollment;
-        source.AcademicCourse = origin.AcademicCourse;
+        entity.Name = model.Name;
     }
     
 }

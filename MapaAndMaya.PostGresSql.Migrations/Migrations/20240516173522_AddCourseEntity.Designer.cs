@@ -2,6 +2,7 @@
 using MapaAndMaya.Services.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MapaAndMaya.PostGresSql.Migrations.Migrations
 {
     [DbContext(typeof(MapaAndMayaDbContext))]
-    partial class MapaAndMayaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240516173522_AddCourseEntity")]
+    partial class AddCourseEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -119,6 +122,37 @@ namespace MapaAndMaya.PostGresSql.Migrations.Migrations
                     b.ToTable("DegreeModalities");
                 });
 
+            modelBuilder.Entity("MapaAndMaya.Services.Models.FacultyFilial", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("SedeTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TownId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("SedeTypeId");
+
+                    b.HasIndex("TownId");
+
+                    b.ToTable("FacultyFilials");
+                });
+
             modelBuilder.Entity("MapaAndMaya.Services.Models.Modality", b =>
                 {
                     b.Property<int>("Id")
@@ -159,60 +193,6 @@ namespace MapaAndMaya.PostGresSql.Migrations.Migrations
                         .IsUnique();
 
                     b.ToTable("Periods");
-                });
-
-            modelBuilder.Entity("MapaAndMaya.Services.Models.Sede", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<int>("SedeTypeId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TownId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.HasIndex("SedeTypeId");
-
-                    b.HasIndex("TownId");
-
-                    b.ToTable("Sedes");
-                });
-
-            modelBuilder.Entity("MapaAndMaya.Services.Models.SedeCourse", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SedeId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("SedeId");
-
-                    b.ToTable("SedeCourses");
                 });
 
             modelBuilder.Entity("MapaAndMaya.Services.Models.SedeType", b =>
@@ -345,7 +325,7 @@ namespace MapaAndMaya.PostGresSql.Migrations.Migrations
                     b.Navigation("Modality");
                 });
 
-            modelBuilder.Entity("MapaAndMaya.Services.Models.Sede", b =>
+            modelBuilder.Entity("MapaAndMaya.Services.Models.FacultyFilial", b =>
                 {
                     b.HasOne("MapaAndMaya.Services.Models.SedeType", "Type")
                         .WithMany("FacultyFilials")
@@ -364,43 +344,14 @@ namespace MapaAndMaya.PostGresSql.Migrations.Migrations
                     b.Navigation("Type");
                 });
 
-            modelBuilder.Entity("MapaAndMaya.Services.Models.SedeCourse", b =>
-                {
-                    b.HasOne("MapaAndMaya.Services.Models.Course", "Course")
-                        .WithMany("SedeCourses")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MapaAndMaya.Services.Models.Sede", "Sede")
-                        .WithMany("SedeCourses")
-                        .HasForeignKey("SedeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Sede");
-                });
-
             modelBuilder.Entity("MapaAndMaya.Services.Models.AcademicCourse", b =>
                 {
                     b.Navigation("Courses");
                 });
 
-            modelBuilder.Entity("MapaAndMaya.Services.Models.Course", b =>
-                {
-                    b.Navigation("SedeCourses");
-                });
-
             modelBuilder.Entity("MapaAndMaya.Services.Models.DegreeModality", b =>
                 {
                     b.Navigation("Courses");
-                });
-
-            modelBuilder.Entity("MapaAndMaya.Services.Models.Sede", b =>
-                {
-                    b.Navigation("SedeCourses");
                 });
 
             modelBuilder.Entity("MapaAndMaya.Services.Models.SedeType", b =>

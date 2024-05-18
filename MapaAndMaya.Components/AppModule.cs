@@ -11,8 +11,8 @@ namespace MapaAndMaya.Components;
 
 public class AppModule : IAppModule
 {
-    public string Name { get; } = "MapaAndMaya";
-    public string Description { get; } = "Modulo de apoyo para gestionar el Mapa de Carreras y la Maya curricular";
+    public string Name { get; } = "Maya";
+    public string Description { get; } = "Modulo de apoyo para gestionar la Maya curricular";
     public string ConfigSettings { get; } = "MapaAndMayaModuleSettings";
 
     public void AddModule(IServiceCollection services, IConfigurationSection configuration,
@@ -30,19 +30,13 @@ public class AppModule : IAppModule
         }, ServiceLifetime.Scoped);
 
         //Add Services
-        services.AddScoped<FacultyService>();
         services.AddScoped<DegreeService>();
-        services.AddScoped<CourseOfCumFumService>();
-        services.AddScoped<CumFumService>();
-        services.AddScoped<GroupService>();
-        services.AddScoped<SubjectInCourseService>();
     }
 
     public void InitModule(IServiceProvider services)
     {
         var dbContext = services.GetRequiredService<MapaAndMayaDbContext>();
         dbContext.Database.Migrate();
-
-        if (services.GetRequiredService<IHostingEnvironment>().IsDevelopment()) DbInitializer.InitializeCentral(dbContext);
+        
     }
 }

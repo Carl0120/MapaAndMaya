@@ -2,13 +2,7 @@
 
 namespace MapaAndMaya.Services.Models;
 
-public class Modality
+public class Modality : NomenclatureBase
 {
-    
-    public int Id { get; set; }
-
-    [MaxLength(50)] 
-    public string Name { get; set; } = "";
-    
-    public ICollection<Course> DegreeModes { get; } = new List<Course>();
+    private ICollection<DegreeModality> DegreeModalities { get; } = new List<DegreeModality>();
 }

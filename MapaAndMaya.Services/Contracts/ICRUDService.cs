@@ -6,9 +6,7 @@ public interface ICrudService <TE,TM> where TE : class where TM: class
     
     public Task<ActionResult<TE>> Update(TM model);
     
-    public Task<ActionResult<TE>> Delete(TE entity);
+    public Task<ActionResult<IList<TE>>> Delete(IList<TE> entity);
     
-    public Task<ICollection<TE>> FindAll();
-    
-    public Task<TE?> Find(int id);
+    public Task<IEnumerable<TE>> Find();
 }

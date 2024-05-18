@@ -1,24 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace MapaAndMaya.Services.Models;
+﻿namespace MapaAndMaya.Services.Models;
 
 public class Course
 {
     public int Id { get; set; }
     
-    public bool Universalized { get; set; }
+    public int DegreeModalityId { get; set; }
+    public DegreeModality? DegreeModality { get; set;}
     
-    public int YearsNumber { get; set; }
+    public int AcademicCourseId { get; set; }
+    public AcademicCourse? AcademicCourse { get; set;}
     
-    public int ModalityId { get; init; }
-    public Modality? Modality { get; init; }
-    
-    public int DegreeId { get; init; }
-    public Degree? Degree { get; init; }
+    public int StudyPlanId { get; set; }
+    public StudyPlan? StudyPlan { get; set; }
 
-    public ICollection<CourseInCumFum> CourseInCumFum { get; } = new List<CourseInCumFum>();
-    
-    public ICollection<SubjectInCourse> SubjectInCourses { get; } = new List<SubjectInCourse>();
-    
-    
+    public ICollection<SedeCourse> SedeCourses { get; } = new List<SedeCourse>();
 }

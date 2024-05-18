@@ -1,0 +1,84 @@
+﻿@page "/degrees"
+@using MapaAndMaya.Services
+@using MapaAndMaya.Services.Models
+
+@inject DegreeService _degreeService;
+@inject DialogService _dialogService;
+@inject NotificationService _notificationService;
+<RadzenRow >
+    <RadzenText Text="Carreras" TextStyle="TextStyle.H3" TagName="TagName.H1"/>
+</RadzenRow>
+<RadzenRow JustifyContent="JustifyContent.End" AlignItems="AlignItems.End">
+    <RadzenButton Icon="add_circle_outline" Text="Agregar" ButtonStyle="ButtonStyle.Primary" Click="@AddItem" class="my-3"/>
+    <RadzenButton Icon="delete_forever" Text="Eliminar" Click="@DeleteItems" class="my-3" ButtonStyle="ButtonStyle.Danger" Disabled="@(SelectedItems == null || SelectedItems.Count == 0)"/>
+         <RadzenButton Icon="refresh" Text="Recargar" ButtonStyle="ButtonStyle.Light"  Click="@ReloadGridButton" />
+</RadzenRow>
+<RadzenDataGrid @ref="_grid" Data="@ItemsCollection" TItem="Degree" AllowPaging="true" AllowColumnResize="true" style="box-shadow: var(--rz-shadow-5);"
+                PageSize="10" PagerHorizontalAlign="HorizontalAlign.Left" IsLoading="@_isLoading" ShowPagingSummary="true" PagingSummaryFormat="Página {0} de {1} <b>(total {2} filas)</b>" PageSizeOptions="@(new int[] { 5, 10, 20, 30 })"
+                AllowFiltering="true" FilterMode="FilterMode.Advanced" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                AllowSorting="true" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@SelectedItems">
+   
+   <EmptyTemplate>
+           <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Nada que mostrar.</p>
+       </EmptyTemplate>
+   
+   
+    <Columns>
+        <RadzenDataGridColumn TItem="Degree" Width="60px" Sortable="false" Filterable="false">
+            <HeaderTemplate>
+                <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string, object> { { "aria-label", "Select all items" } })"
+                                Value="@(SelectedItems == null || SelectedItems?.Any() != true ? false : !ItemsCollection.All(i => SelectedItems.Contains(i)) ? null : ItemsCollection.Any(i => SelectedItems.Contains(i)))"
+                                Change="@(args => SelectedItems = args == true ? ItemsCollection.ToList() : null)"/>
+            </HeaderTemplate>
+            <Template Context="data">
+                <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(SelectedItems != null && SelectedItems.Contains(data))" InputAttributes="@(new Dictionary<string, object> { { "aria-label", "Select item" } })"
+                                TValue="bool"/>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Degree" Property="Name" Title="Nombre"/>
+        <RadzenDataGridColumn TItem="Degree" Context="data" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="156px">
+            <Template Context="data">
+                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                              Click="@(_ => EditItem(data))" @onclick:stopPropagation="true">
+                </RadzenButton>
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code{
+
+    private async Task ShowFormularyDialog(Action onSummit, string title)
+    {
+        var result = await _dialogService.OpenAsync(title, ds =>
+                @<EditForm Model="@DegreeViewModel" OnValidSubmit="@onSummit">
+                    <DataAnnotationsValidator/>
+                    <div class="container-fluid">
+                        <div class="row ">
+                            <RadzenLabel Component="Name" Text="Nombre de la Carrera:"/> <br/>
+                            <div class="col-md-12 pb-3">
+                                <RadzenTextBox @bind-Value="DegreeViewModel.Name" Name="Name" style="width: 100%;"/>
+                                <ValidationMessage For="@(() => DegreeViewModel.Name)"/>
+
+                            </div>
+                        </div>
+                    </div>
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
+                        <RadzenButton ButtonType="ButtonType.Submit" Text="Guardar" Icon="save" class="me-1"/>
+                        <RadzenButton Text="Cancelar" Icon="clear" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Light" class="me-1"/>
+            </RadzenStack>
+            </EditForm>
+            , new DialogOptions { Width = $"{400}px" }
+        );
+    }
+
+    private async Task BusyDialog(string message)
+    {
+        await _dialogService.OpenAsync("", _ =>
+            @<RadzenStack AlignItems="AlignItems.Center" Gap="2rem" Class="rz-p-12">
+                <RadzenText TextStyle="TextStyle.H6" Text="@message"></RadzenText>
+        </RadzenStack>, new DialogOptions { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+    }
+
+
+}

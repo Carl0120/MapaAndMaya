@@ -8,24 +8,24 @@ using Microsoft.Extensions.Logging;
 
 namespace MapaAndMaya.Services;
 
-public class DegreeService : ICrudService<Degree,GenericViewModel>
+public class ModalityService :ICrudService<Modality,GenericViewModel>
 {
-    private readonly ILogger<DegreeService> _logger;
+    private readonly ILogger<ModalityService> _logger;
 
     private readonly MapaAndMayaDbContext _dbContext;
 
-    public DegreeService(ILogger<DegreeService> logger, MapaAndMayaDbContext dbContext)
+    public ModalityService(ILogger<ModalityService> logger, MapaAndMayaDbContext dbContext)
     {
         _logger = logger;
         _dbContext = dbContext;
     }
     
-    public async Task<ActionResult<Degree>> Create(GenericViewModel model)
+    public async Task<ActionResult<Modality>> Create(GenericViewModel model)
     {
-        ActionResult<Degree> result = new ActionResult<Degree>();
-        var any = await _dbContext.Degrees.AnyAsync(p => p.Name == model.Name || p.Id== model.Id);
+        ActionResult<Modality> result = new ActionResult<Modality>();
+        var any = await _dbContext.Modalities.AnyAsync(p => p.Name == model.Name || p.Id== model.Id);
         
-        if ( any) result.Errors.Add("La Carrera ya existe");
+        if (any) result.Errors.Add("La Modalidad ya existe");
         
         if (result.Errors.Any())
         {
@@ -33,11 +33,11 @@ public class DegreeService : ICrudService<Degree,GenericViewModel>
             return result;
         }
 
-        Degree entity = new Degree();
-        entity.Name = model.Name;
+        Modality entity = new Modality();
+        model.ToEntity(entity);
         try
         {
-            _dbContext.Degrees.Add(entity);
+            _dbContext.Modalities.Add(entity);
             await _dbContext.SaveChangesAsync();
             result.CreateResponseSuccess(entity);
             return result;
@@ -49,16 +49,16 @@ public class DegreeService : ICrudService<Degree,GenericViewModel>
             return result;
         }
     }
-    
-    public async Task<ActionResult<Degree>> Update(GenericViewModel model)
+
+    public async Task<ActionResult<Modality>> Update(GenericViewModel model)
     {
-        ActionResult<Degree> result = new ActionResult<Degree>();
+        ActionResult<Modality> result = new ActionResult<Modality>();
         
-        var entity = await _dbContext.Degrees.FindAsync(model.Id);
+        var entity = await _dbContext.Modalities.FindAsync(model.Id);
         
         if (entity == null)
         {
-            result.Errors.Add("No se encuentra la facultad");
+            result.Errors.Add("No se encuentra la Modalidad");
             result.CreateResponseInvalidAction();
             return result;
         }
@@ -76,32 +76,17 @@ public class DegreeService : ICrudService<Degree,GenericViewModel>
             result.CreateResponseFail(ex);
             return result;
         }
-
     }
 
-    public async Task<IEnumerable<Degree>> Find()
+    public async Task<ActionResult<IList<Modality>>> Delete(IList<Modality> entities)
     {
-        try
-        {
-            var list =  _dbContext.Degrees.OrderBy(e=>e.Name).AsEnumerable();
-            return  list;
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message);
-            return  Enumerable.Empty<Degree>();
-        }
-    }
-    
-    public async Task<ActionResult<IList<Degree>>> Delete(IList<Degree> degrees)
-    {
-        ActionResult<IList<Degree>> result = new ActionResult<IList<Degree>>();
+        ActionResult<IList<Modality>> result = new ActionResult<IList<Modality>>();
         
         try
         {
-          _dbContext.Degrees.RemoveRange(degrees);
+            _dbContext.Modalities.RemoveRange(entities);
             await _dbContext.SaveChangesAsync();
-            result.CreateResponseSuccess(degrees);
+            result.CreateResponseSuccess(entities);
             return result;
         }
         catch (Exception ex)
@@ -109,7 +94,19 @@ public class DegreeService : ICrudService<Degree,GenericViewModel>
             _logger.LogError(ex.Message);
             result.CreateResponseFail(ex);
             return result;
+        } 
+    }
+
+    public async Task<IEnumerable<Modality>> Find()
+    { try
+        {
+            var list =  _dbContext.Modalities.OrderBy(e=>e.Name).AsEnumerable();
+            return  list;
         }
-        
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return  Enumerable.Empty<Modality>();
+        }
     }
 }

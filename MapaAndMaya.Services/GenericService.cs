@@ -8,24 +8,27 @@ using Microsoft.Extensions.Logging;
 
 namespace MapaAndMaya.Services;
 
-public class DegreeService : ICrudService<Degree,GenericViewModel>
+public abstract class GenericService<TE,TM> : ICrudService<TE,TM> where TE : NomenclatureBase, new() where TM: GenericViewModel
 {
-    private readonly ILogger<DegreeService> _logger;
+    private readonly ILogger<GenericService<TE,TM>> _logger;
 
     private readonly MapaAndMayaDbContext _dbContext;
-
-    public DegreeService(ILogger<DegreeService> logger, MapaAndMayaDbContext dbContext)
+    
+    private readonly DbSet<TE> _dbSet;
+    
+    public GenericService(ILogger<GenericService<TE,TM>> logger, MapaAndMayaDbContext dbContext)
     {
         _logger = logger;
         _dbContext = dbContext;
+        _dbSet = dbContext.Set<TE>();
     }
-    
-    public async Task<ActionResult<Degree>> Create(GenericViewModel model)
+
+    public async Task<ActionResult<TE>> Create(TM model)
     {
-        ActionResult<Degree> result = new ActionResult<Degree>();
-        var any = await _dbContext.Degrees.AnyAsync(p => p.Name == model.Name || p.Id== model.Id);
+        ActionResult<TE> result = new ActionResult<TE>();
+        var any = await _dbSet.AnyAsync(p => p.Name == model.Name || p.Id== model.Id);
         
-        if ( any) result.Errors.Add("La Carrera ya existe");
+        if (any) result.Errors.Add("El elemento ya existe");
         
         if (result.Errors.Any())
         {
@@ -33,11 +36,11 @@ public class DegreeService : ICrudService<Degree,GenericViewModel>
             return result;
         }
 
-        Degree entity = new Degree();
-        entity.Name = model.Name;
+        TE entity = new TE();
+         model.ToEntity(entity);
         try
         {
-            _dbContext.Degrees.Add(entity);
+            _dbSet.Add(entity);
             await _dbContext.SaveChangesAsync();
             result.CreateResponseSuccess(entity);
             return result;
@@ -49,16 +52,16 @@ public class DegreeService : ICrudService<Degree,GenericViewModel>
             return result;
         }
     }
-    
-    public async Task<ActionResult<Degree>> Update(GenericViewModel model)
+
+    public async Task<ActionResult<TE>> Update(TM model)
     {
-        ActionResult<Degree> result = new ActionResult<Degree>();
+        ActionResult<TE> result = new ActionResult<TE>();
         
-        var entity = await _dbContext.Degrees.FindAsync(model.Id);
+        var entity = await _dbSet.FindAsync(model.Id);
         
         if (entity == null)
         {
-            result.Errors.Add("No se encuentra la facultad");
+            result.Errors.Add("No se encuentra el elemento");
             result.CreateResponseInvalidAction();
             return result;
         }
@@ -76,32 +79,17 @@ public class DegreeService : ICrudService<Degree,GenericViewModel>
             result.CreateResponseFail(ex);
             return result;
         }
-
     }
 
-    public async Task<IEnumerable<Degree>> Find()
+    public async Task<ActionResult<IList<TE>>> Delete(IList<TE> entities)
     {
-        try
-        {
-            var list =  _dbContext.Degrees.OrderBy(e=>e.Name).AsEnumerable();
-            return  list;
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message);
-            return  Enumerable.Empty<Degree>();
-        }
-    }
-    
-    public async Task<ActionResult<IList<Degree>>> Delete(IList<Degree> degrees)
-    {
-        ActionResult<IList<Degree>> result = new ActionResult<IList<Degree>>();
+        ActionResult<IList<TE>> result = new ActionResult<IList<TE>>();
         
         try
         {
-          _dbContext.Degrees.RemoveRange(degrees);
+            _dbSet.RemoveRange(entities);
             await _dbContext.SaveChangesAsync();
-            result.CreateResponseSuccess(degrees);
+            result.CreateResponseSuccess(entities);
             return result;
         }
         catch (Exception ex)
@@ -110,6 +98,19 @@ public class DegreeService : ICrudService<Degree,GenericViewModel>
             result.CreateResponseFail(ex);
             return result;
         }
-        
+    }
+
+    public async Task<IEnumerable<TE>> Find()
+    {
+        try
+        {
+            var list =  _dbSet.OrderBy(e=>e.Name).AsEnumerable();
+            return  list;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return  Enumerable.Empty<TE>();
+        }
     }
 }

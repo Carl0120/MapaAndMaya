@@ -2,6 +2,7 @@
 using MapaAndMaya.Services.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MapaAndMaya.PostGresSql.Migrations.Migrations
 {
     [DbContext(typeof(MapaAndMayaDbContext))]
-    partial class MapaAndMayaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240516180543_AddSedeCourse")]
+    partial class AddSedeCourse
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
