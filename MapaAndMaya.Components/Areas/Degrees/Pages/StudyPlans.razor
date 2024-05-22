@@ -1,12 +1,12 @@
-﻿@page "/degrees"
+﻿@page "/study-plans"
 @using MapaAndMaya.Services.Models
 @using MapaAndMaya.Services.NomenclatureServices
 
-@inject DegreeService _degreeService;
+@inject StudyPlanService _studyPlanService;
 @inject DialogService _dialogService;
 @inject NotificationService _notificationService;
 <RadzenRow >
-    <RadzenText Text="Carreras" TextStyle="TextStyle.H3" TagName="TagName.H1"/>
+    <RadzenText Text="Planes de estudio" TextStyle="TextStyle.H3" TagName="TagName.H1"/>
 </RadzenRow>
 <RadzenRow JustifyContent="JustifyContent.End" AlignItems="AlignItems.End">
     <RadzenButton Icon="add_circle_outline" Text="Agregar" ButtonStyle="ButtonStyle.Primary" Click="@AddItem" class="my-3"/>
@@ -14,7 +14,7 @@
     <RadzenButton Icon="refresh" Text="Recargar" ButtonStyle="ButtonStyle.Light" Click="@ReloadGridButton" class="my-3"/>
 
 </RadzenRow>
-<RadzenDataGrid @ref="_grid" Data="@ItemsCollection" TItem="Degree" AllowPaging="true" AllowColumnResize="true" style="box-shadow: var(--rz-shadow-5);"
+<RadzenDataGrid @ref="_grid" Data="@ItemsCollection" TItem="StudyPlan" AllowPaging="true" AllowColumnResize="true" style="box-shadow: var(--rz-shadow-5);"
                 PageSize="10" PagerHorizontalAlign="HorizontalAlign.Left" IsLoading="@_isLoading" ShowPagingSummary="true" PagingSummaryFormat="Página {0} de {1} <b>(total {2} filas)</b>" PageSizeOptions="@(new int[] { 5, 10, 20, 30 })"
                 AllowFiltering="true" FilterMode="FilterMode.Advanced" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                 AllowSorting="true" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@SelectedItems">
@@ -25,7 +25,7 @@
 
 
     <Columns>
-        <RadzenDataGridColumn TItem="Degree" Width="60px" Sortable="false" Filterable="false">
+        <RadzenDataGridColumn TItem="StudyPlan" Width="60px" Sortable="false" Filterable="false">
             <HeaderTemplate>
                 <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string, object> { { "aria-label", "Select all items" } })"
                                 Value="@(SelectedItems == null || SelectedItems?.Any() != true ? false : !ItemsCollection.All(i => SelectedItems.Contains(i)) ? null : ItemsCollection.Any(i => SelectedItems.Contains(i)))"
@@ -36,8 +36,8 @@
                                 TValue="bool"/>
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="Degree" Property="Name" Title="Nombre"/>
-        <RadzenDataGridColumn TItem="Degree" Context="data" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="156px">
+        <RadzenDataGridColumn TItem="StudyPlan" Property="Name" Title="Nombre"/>
+        <RadzenDataGridColumn TItem="StudyPlan" Context="data" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="156px">
             <Template Context="data">
                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
                               Click="@(_ => EditItem(data))" @onclick:stopPropagation="true">
@@ -52,14 +52,14 @@
     private async Task ShowFormularyDialog(Action onSummit, string title)
     {
         var result = await _dialogService.OpenAsync(title, ds =>
-                @<EditForm Model="@DegreeViewModel" OnValidSubmit="@onSummit">
+                @<EditForm Model="@ViewModel" OnValidSubmit="@onSummit">
                     <DataAnnotationsValidator/>
                     <div class="container-fluid">
                         <div class="row ">
-                            <RadzenLabel Component="Name" Text="Nombre de la Carrera:"/> <br/>
+                            <RadzenLabel Component="Name" Text="Nombre del Plan de Estudio:"/> <br/>
                             <div class="col-md-12 pb-3">
-                                <RadzenTextBox @bind-Value="DegreeViewModel.Name" Name="Name" style="width: 100%;"/>
-                                <ValidationMessage For="@(() => DegreeViewModel.Name)"/>
+                                <RadzenTextBox @bind-Value="ViewModel.Name" Name="Name" style="width: 100%;"/>
+                                <ValidationMessage For="@(() => ViewModel.Name)"/>
 
                             </div>
                         </div>

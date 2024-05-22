@@ -1,23 +1,18 @@
-﻿using MapaAndMaya.Components.Areas.Sede;
-using MapaAndMaya.Services;
+﻿using MapaAndMaya.Services;
 using MapaAndMaya.Services.Models;
 using MapaAndMaya.Services.ViewModels;
 using Radzen;
 using Radzen.Blazor;
 
-namespace MapaAndMaya.Components.Areas.Degrees.Pages;
+namespace MapaAndMaya.Components.Areas.Subjects;
 
-public partial class Degrees
+public partial class AcademicCourses
 {
     private bool _isLoading;
-
-    private RadzenDataGrid<Degree> _grid = new();
-
-    private IEnumerable<Degree> ItemsCollection { get; set; } = new List<Degree>();
-
-    private IList<Degree>? SelectedItems { get; set; } = new List<Degree>();
-
-    private GenericViewModel DegreeViewModel { get; set; } = new();
+    private RadzenDataGrid<AcademicCourse> _grid = new();
+    private IEnumerable<AcademicCourse> ItemsCollection { get; set; } = new List<AcademicCourse>();
+    private IList<AcademicCourse>? SelectedItems { get; set; } = new List<AcademicCourse>();
+    private GenericViewModel ViewModel { get; set; } = new();
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -29,14 +24,14 @@ public partial class Degrees
     protected override async Task OnInitializedAsync()
     {
         _isLoading = true;
-        ItemsCollection = _degreeService.Find();
+        ItemsCollection = _academicCourseService.Find();
         _isLoading = false;
     }
 
     private async void AddItem()
     {
-        DegreeViewModel = new GenericViewModel();
-        await ShowFormularyDialog(AddFormSubmit, "Adicionar Carrera");
+        ViewModel = new GenericViewModel();
+        await ShowFormularyDialog(AddFormSubmit, "Adicionar Curso Académico");
     }
 
     private async void AddFormSubmit()
@@ -44,21 +39,21 @@ public partial class Degrees
         _dialogService.Close();
         var openDialogTask = BusyDialog("Guardando ...");
 
-        var response = await _degreeService.Create(DegreeViewModel);
-        if (response.Status && response.Element != null)
+        ActionResult<AcademicCourse> response = await _academicCourseService.Create(ViewModel);
+        if (response.Status)
             NotifyOk(response.Title);
         else
             NotifyErrors(response.Title, response.Errors);
     }
 
-    private async void EditItem(Degree item)
+    private async void EditItem(AcademicCourse item)
     {
-        DegreeViewModel = new GenericViewModel()
+        ViewModel = new GenericViewModel()
         {
             Id = item.Id,
             Name = item.Name
         };
-        await ShowFormularyDialog(EditFormSubmit, "Editar Facultad");
+        await ShowFormularyDialog(EditFormSubmit, "Editar Curso Académico");
     }
 
     private async void EditFormSubmit()
@@ -66,7 +61,7 @@ public partial class Degrees
         _dialogService.Close();
         var openDialogTask = BusyDialog("Guardando ...");
 
-        var response = await _degreeService.Update(DegreeViewModel);
+        var response = await _academicCourseService.Update(ViewModel);
 
         if (response.Status)
             NotifyOk(response.Title);
@@ -76,8 +71,8 @@ public partial class Degrees
 
     private async void DeleteItems()
     {
-        var confirmResult = await _dialogService.Confirm("Confirma  eliminar los elementos seleccionados?",
-            "Confirmación", new ConfirmOptions { OkButtonText = "Si", CancelButtonText = "No" });
+        var confirmResult = await _dialogService.Confirm("¿Confirma eliminar los elementos seleccionados?",
+            "Confirmación", new ConfirmOptions { OkButtonText = "Sí", CancelButtonText = "No" });
 
         if (confirmResult.HasValue && confirmResult.Value)
         {
@@ -85,20 +80,20 @@ public partial class Degrees
 
             if (SelectedItems != null)
             {
-                var response = await _degreeService.Delete(SelectedItems);
+                var response = await _academicCourseService.Delete(SelectedItems);
                 if (response.Status)
                     NotifyOk(response.Title);
                 else
                     NotifyErrors(response.Title, response.Errors);
             }
 
-            SelectedItems = new List<Degree>();
+            SelectedItems = new List<AcademicCourse>();
         }
     }
 
     private async void ReloadGridButton()
     {
-        SelectedItems = new List<Degree>();
+        SelectedItems = new List<AcademicCourse>();
         _grid.Reset(true);
         await _grid.FirstPage(true);
     }
@@ -116,8 +111,12 @@ public partial class Degrees
         foreach (var error in errors)
             _notificationService.Notify(new NotificationMessage()
             {
-                Severity = NotificationSeverity.Error, Summary = title, Detail = error, CloseOnClick = true,
-                Duration = 5000, Style = "width: 400px;"
+                Severity = NotificationSeverity.Error,
+                Summary = title,
+                Detail = error,
+                CloseOnClick = true,
+                Duration = 5000,
+                Style = "width: 400px;"
             });
     }
 }

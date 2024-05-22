@@ -1,6 +1,7 @@
 ﻿using EIS.Core.Services.Contracts;
 using MapaAndMaya.Services;
 using MapaAndMaya.Services.DB;
+using MapaAndMaya.Services.NomenclatureServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,12 +32,19 @@ public class AppModule : IAppModule
 
         //Add Services
         services.AddScoped<DegreeService>();
+        services.AddScoped<ModalityService>();
+        services.AddScoped<TownService>();
+        services.AddScoped<SedeTypeService>();
+        services.AddScoped<SubjectService>();
+        services.AddScoped<AcademicCourseService>();
+        services.AddScoped<AcademicYearService>();
+        services.AddScoped<PeriodService>();
+        services.AddScoped<StudyPlanService>();
     }
 
     public void InitModule(IServiceProvider services)
     {
         var dbContext = services.GetRequiredService<MapaAndMayaDbContext>();
         dbContext.Database.Migrate();
-        
     }
 }

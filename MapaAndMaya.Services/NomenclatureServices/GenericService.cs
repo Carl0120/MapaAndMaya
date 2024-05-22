@@ -4,42 +4,47 @@ using MapaAndMaya.Services.Mappers;
 using MapaAndMaya.Services.Models;
 using MapaAndMaya.Services.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 
-namespace MapaAndMaya.Services;
+namespace MapaAndMaya.Services.NomenclatureServices;
 
-public class ModalityService :ICrudService<Modality,GenericViewModel>
+public abstract class GenericService<TE, TM> : ICrudService<TE, TM>
+    where TE : NomenclatureBase, new() where TM : GenericViewModel
 {
-    private readonly ILogger<ModalityService> _logger;
+    protected readonly ILogger<GenericService<TE, TM>> _logger;
 
-    private readonly MapaAndMayaDbContext _dbContext;
+    protected readonly MapaAndMayaDbContext _dbContext;
 
-    public ModalityService(ILogger<ModalityService> logger, MapaAndMayaDbContext dbContext)
+    private readonly DbSet<TE> _dbSet;
+
+    protected GenericService(ILogger<GenericService<TE, TM>> logger, MapaAndMayaDbContext dbContext)
     {
         _logger = logger;
         _dbContext = dbContext;
+        _dbSet = dbContext.Set<TE>();
     }
-    
-    public async Task<ActionResult<Modality>> Create(GenericViewModel model)
+
+    public virtual async Task<ActionResult<TE>> Create(TM model)
     {
-        ActionResult<Modality> result = new ActionResult<Modality>();
-        var any = await _dbContext.Modalities.AnyAsync(p => p.Name == model.Name || p.Id== model.Id);
-        
-        if (any) result.Errors.Add("La Modalidad ya existe");
-        
+        ActionResult<TE> result = new();
+        var any = await _dbSet.AnyAsync(p => p.Name == model.Name || p.Id == model.Id);
+
+        if (any) result.Errors.Add("El elemento ya existe");
+
         if (result.Errors.Any())
         {
             result.CreateResponseInvalidAction();
             return result;
         }
 
-        Modality entity = new Modality();
+        var entity = new TE();
         model.ToEntity(entity);
         try
         {
-            _dbContext.Modalities.Add(entity);
+            EntityEntry<TE> entityEntry = _dbSet.Add(entity);
             await _dbContext.SaveChangesAsync();
-            result.CreateResponseSuccess(entity);
+            result.CreateResponseSuccess(entityEntry.Entity);
             return result;
         }
         catch (Exception ex)
@@ -50,19 +55,19 @@ public class ModalityService :ICrudService<Modality,GenericViewModel>
         }
     }
 
-    public async Task<ActionResult<Modality>> Update(GenericViewModel model)
+    public async Task<ActionResult<TE>> Update(TM model)
     {
-        ActionResult<Modality> result = new ActionResult<Modality>();
-        
-        var entity = await _dbContext.Modalities.FindAsync(model.Id);
-        
+        ActionResult<TE> result = new();
+
+        var entity = await _dbSet.FindAsync(model.Id);
+
         if (entity == null)
         {
-            result.Errors.Add("No se encuentra la Modalidad");
+            result.Errors.Add("No se encuentra el elemento");
             result.CreateResponseInvalidAction();
             return result;
         }
-        
+
         model.ToEntity(entity);
         try
         {
@@ -78,14 +83,14 @@ public class ModalityService :ICrudService<Modality,GenericViewModel>
         }
     }
 
-    public async Task<ActionResult<IList<Modality>>> Delete(IList<Modality> entities)
+    public async Task<ActionResult<IList<TE>>> Delete(IList<TE> entities)
     {
-        ActionResult<IList<Modality>> result = new ActionResult<IList<Modality>>();
-        
+        ActionResult<IList<TE>> result = new();
+
+        var ids = entities.Select(e => e.Id).ToList();
         try
         {
-            _dbContext.Modalities.RemoveRange(entities);
-            await _dbContext.SaveChangesAsync();
+            await _dbSet.Where(e => ids.Contains(e.Id)).ExecuteDeleteAsync();
             result.CreateResponseSuccess(entities);
             return result;
         }
@@ -94,19 +99,20 @@ public class ModalityService :ICrudService<Modality,GenericViewModel>
             _logger.LogError(ex.Message);
             result.CreateResponseFail(ex);
             return result;
-        } 
+        }
     }
 
-    public async Task<IEnumerable<Modality>> Find()
-    { try
+    public IEnumerable<TE> Find()
+    {
+        try
         {
-            var list =  _dbContext.Modalities.OrderBy(e=>e.Name).AsEnumerable();
-            return  list;
+            var list = _dbSet.OrderBy(e => e.Name).AsEnumerable();
+            return list;
         }
         catch (Exception e)
         {
             _logger.LogError(e.Message);
-            return  Enumerable.Empty<Modality>();
+            return Enumerable.Empty<TE>();
         }
     }
 }

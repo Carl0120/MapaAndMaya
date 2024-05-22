@@ -4,5 +4,4 @@ namespace MapaAndMaya.Services.Models;
 
 public class Period : NomenclatureBase
 {
-    
 }

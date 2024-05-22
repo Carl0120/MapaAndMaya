@@ -1,23 +1,19 @@
-﻿using MapaAndMaya.Components.Areas.Sede;
+﻿using MapaAndMaya.Components.Shared;
 using MapaAndMaya.Services;
 using MapaAndMaya.Services.Models;
 using MapaAndMaya.Services.ViewModels;
 using Radzen;
 using Radzen.Blazor;
 
-namespace MapaAndMaya.Components.Areas.Degrees.Pages;
+namespace MapaAndMaya.Components.Areas.Subjects;
 
-public partial class Degrees
+public partial class Subjects
 {
-    private bool _isLoading;
-
-    private RadzenDataGrid<Degree> _grid = new();
-
-    private IEnumerable<Degree> ItemsCollection { get; set; } = new List<Degree>();
-
-    private IList<Degree>? SelectedItems { get; set; } = new List<Degree>();
-
-    private GenericViewModel DegreeViewModel { get; set; } = new();
+    public bool _isLoading { get; set; }
+    public RadzenDataGrid<Subject> _grid { get; set; }
+    public IEnumerable<Subject> ItemsCollection { get; set; }
+    public IList<Subject>? SelectedItems { get; set; }
+    public GenericViewModel ViewModel { get; set; }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -29,14 +25,14 @@ public partial class Degrees
     protected override async Task OnInitializedAsync()
     {
         _isLoading = true;
-        ItemsCollection = _degreeService.Find();
+        ItemsCollection = _subjectService.Find();
         _isLoading = false;
     }
 
     private async void AddItem()
     {
-        DegreeViewModel = new GenericViewModel();
-        await ShowFormularyDialog(AddFormSubmit, "Adicionar Carrera");
+        ViewModel = new GenericViewModel();
+        await ShowFormularyDialog(AddFormSubmit, "Adicionar Asignatura");
     }
 
     private async void AddFormSubmit()
@@ -44,21 +40,21 @@ public partial class Degrees
         _dialogService.Close();
         var openDialogTask = BusyDialog("Guardando ...");
 
-        var response = await _degreeService.Create(DegreeViewModel);
-        if (response.Status && response.Element != null)
+        ActionResult<Subject> response = await _subjectService.Create(ViewModel);
+        if (response.Status)
             NotifyOk(response.Title);
         else
             NotifyErrors(response.Title, response.Errors);
     }
 
-    private async void EditItem(Degree item)
+    private async void EditItem(Subject item)
     {
-        DegreeViewModel = new GenericViewModel()
+        ViewModel = new GenericViewModel()
         {
             Id = item.Id,
             Name = item.Name
         };
-        await ShowFormularyDialog(EditFormSubmit, "Editar Facultad");
+        await ShowFormularyDialog(EditFormSubmit, "Editar Asignatura");
     }
 
     private async void EditFormSubmit()
@@ -66,7 +62,7 @@ public partial class Degrees
         _dialogService.Close();
         var openDialogTask = BusyDialog("Guardando ...");
 
-        var response = await _degreeService.Update(DegreeViewModel);
+        var response = await _subjectService.Update(ViewModel);
 
         if (response.Status)
             NotifyOk(response.Title);
@@ -85,20 +81,20 @@ public partial class Degrees
 
             if (SelectedItems != null)
             {
-                var response = await _degreeService.Delete(SelectedItems);
+                var response = await _subjectService.Delete(SelectedItems);
                 if (response.Status)
                     NotifyOk(response.Title);
                 else
                     NotifyErrors(response.Title, response.Errors);
             }
 
-            SelectedItems = new List<Degree>();
+            SelectedItems = new List<Subject>();
         }
     }
 
     private async void ReloadGridButton()
     {
-        SelectedItems = new List<Degree>();
+        SelectedItems = new List<Subject>();
         _grid.Reset(true);
         await _grid.FirstPage(true);
     }

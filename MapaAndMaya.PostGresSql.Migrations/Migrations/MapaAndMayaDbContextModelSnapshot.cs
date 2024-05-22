@@ -45,6 +45,33 @@ namespace MapaAndMaya.PostGresSql.Migrations.Migrations
                     b.ToTable("AcademicCourses");
                 });
 
+            modelBuilder.Entity("MapaAndMaya.Services.Models.AcademicYear", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("Order")
+                        .IsUnique();
+
+                    b.ToTable("AcademicYears");
+                });
+
             modelBuilder.Entity("MapaAndMaya.Services.Models.Course", b =>
                 {
                     b.Property<int>("Id")

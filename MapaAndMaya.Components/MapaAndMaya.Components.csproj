@@ -20,23 +20,22 @@
     </ItemGroup>
 
     <ItemGroup>
-      <_ContentIncludedByDefault Remove="Areas\Shared\MMLayout.razor" />
-      <_ContentIncludedByDefault Remove="Areas\Central\Pages\Degrees.razor" />
-      <_ContentIncludedByDefault Remove="Areas\Central\Pages\Faculties.razor" />
-      <_ContentIncludedByDefault Remove="Areas\Mapa\Components\GroupsTable.razor" />
-      <_ContentIncludedByDefault Remove="Areas\Mapa\MapaLayout.razor" />
-      <_ContentIncludedByDefault Remove="Areas\Mapa\Pages\Courses.razor" />
-      <_ContentIncludedByDefault Remove="Areas\Mapa\Pages\CumFums.razor" />
-      <_ContentIncludedByDefault Remove="Areas\Mapa\Pages\Home.razor" />
-      <_ContentIncludedByDefault Remove="Areas\Pages\Degrees.razor" />
+        <_ContentIncludedByDefault Remove="Areas\Shared\MMLayout.razor"/>
+        <_ContentIncludedByDefault Remove="Areas\Central\Pages\Degrees.razor"/>
+        <_ContentIncludedByDefault Remove="Areas\Central\Pages\Faculties.razor"/>
+        <_ContentIncludedByDefault Remove="Areas\Mapa\Components\GroupsTable.razor"/>
+        <_ContentIncludedByDefault Remove="Areas\Mapa\MapaLayout.razor"/>
+        <_ContentIncludedByDefault Remove="Areas\Mapa\Pages\Courses.razor"/>
+        <_ContentIncludedByDefault Remove="Areas\Mapa\Pages\CumFums.razor"/>
+        <_ContentIncludedByDefault Remove="Areas\Mapa\Pages\Home.razor"/>
+        <_ContentIncludedByDefault Remove="Areas\Pages\Degrees.razor"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Areas\Degrees\" />
-      <Folder Include="Shared\" />
+        <Folder Include="Areas\Degrees\"/>
     </ItemGroup>
 
     <ItemGroup>
-      <AdditionalFiles Include="Areas\Degrees\Pages\Degrees.razor" />
+        <AdditionalFiles Include="Areas\Degrees\Pages\Degrees.razor"/>
     </ItemGroup>
 </Project>
