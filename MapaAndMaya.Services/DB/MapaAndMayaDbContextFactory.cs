@@ -9,7 +9,7 @@ public class MapaAndMayaDbContextFactory : IDesignTimeDbContextFactory<MapaAndMa
     {
         var optionsBuilder = new DbContextOptionsBuilder<MapaAndMayaDbContext>();
         optionsBuilder.UseNpgsql(
-            "Host=localhost;Port=5432;Database=MapaAndMayaModuleDB;Username=postgres;Password=root;"
+            "Host=localhost;Port=5432;Database=MapaAndMayaModuleDBV2;Username=postgres;Password=root;"
             , builder => { builder.MigrationsAssembly("MapaAndMaya.PostGresSql.Migrations"); }
         );
         return new MapaAndMayaDbContext(optionsBuilder.Options);

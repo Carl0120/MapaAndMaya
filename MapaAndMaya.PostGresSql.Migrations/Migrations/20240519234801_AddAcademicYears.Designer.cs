@@ -2,6 +2,7 @@
 using MapaAndMaya.Services.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MapaAndMaya.PostGresSql.Migrations.Migrations
 {
     [DbContext(typeof(MapaAndMayaDbContext))]
-    partial class MapaAndMayaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240519234801_AddAcademicYears")]
+    partial class AddAcademicYears
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -188,30 +191,6 @@ namespace MapaAndMaya.PostGresSql.Migrations.Migrations
                     b.ToTable("Periods");
                 });
 
-            modelBuilder.Entity("MapaAndMaya.Services.Models.PeriodInYear", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("PeriodId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("YearsInCourseId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("YearsInCourseId");
-
-                    b.HasIndex("PeriodId", "YearsInCourseId")
-                        .IsUnique();
-
-                    b.ToTable("PeriodInYear");
-                });
-
             modelBuilder.Entity("MapaAndMaya.Services.Models.Sede", b =>
                 {
                     b.Property<int>("Id")
@@ -329,33 +308,6 @@ namespace MapaAndMaya.PostGresSql.Migrations.Migrations
                     b.ToTable("Subjects");
                 });
 
-            modelBuilder.Entity("MapaAndMaya.Services.Models.SubjectsInPeriod", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("HaveFinalExam")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("PeriodInYearId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SubjectId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PeriodInYearId");
-
-                    b.HasIndex("SubjectId", "PeriodInYearId")
-                        .IsUnique();
-
-                    b.ToTable("SubjectsInPeriods");
-                });
-
             modelBuilder.Entity("MapaAndMaya.Services.Models.Town", b =>
                 {
                     b.Property<int>("Id")
@@ -375,30 +327,6 @@ namespace MapaAndMaya.PostGresSql.Migrations.Migrations
                         .IsUnique();
 
                     b.ToTable("Towns");
-                });
-
-            modelBuilder.Entity("MapaAndMaya.Services.Models.YearsInCourse", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AcademicYearId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AcademicYearId");
-
-                    b.HasIndex("CourseId", "AcademicYearId")
-                        .IsUnique();
-
-                    b.ToTable("YearsInCourses");
                 });
 
             modelBuilder.Entity("MapaAndMaya.Services.Models.Course", b =>
@@ -431,7 +359,7 @@ namespace MapaAndMaya.PostGresSql.Migrations.Migrations
             modelBuilder.Entity("MapaAndMaya.Services.Models.DegreeModality", b =>
                 {
                     b.HasOne("MapaAndMaya.Services.Models.Degree", "Degree")
-                        .WithMany("DegreeModalities")
+                        .WithMany()
                         .HasForeignKey("DegreeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -445,25 +373,6 @@ namespace MapaAndMaya.PostGresSql.Migrations.Migrations
                     b.Navigation("Degree");
 
                     b.Navigation("Modality");
-                });
-
-            modelBuilder.Entity("MapaAndMaya.Services.Models.PeriodInYear", b =>
-                {
-                    b.HasOne("MapaAndMaya.Services.Models.Period", "Period")
-                        .WithMany("PeriodInYears")
-                        .HasForeignKey("PeriodId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MapaAndMaya.Services.Models.YearsInCourse", "YearsInCourse")
-                        .WithMany("PeriodInYears")
-                        .HasForeignKey("YearsInCourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Period");
-
-                    b.Navigation("YearsInCourse");
                 });
 
             modelBuilder.Entity("MapaAndMaya.Services.Models.Sede", b =>
@@ -504,79 +413,19 @@ namespace MapaAndMaya.PostGresSql.Migrations.Migrations
                     b.Navigation("Sede");
                 });
 
-            modelBuilder.Entity("MapaAndMaya.Services.Models.SubjectsInPeriod", b =>
-                {
-                    b.HasOne("MapaAndMaya.Services.Models.PeriodInYear", "PeriodInYear")
-                        .WithMany("SubjectsInPeriods")
-                        .HasForeignKey("PeriodInYearId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MapaAndMaya.Services.Models.Subject", "Subject")
-                        .WithMany("SubjectsInPeriods")
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PeriodInYear");
-
-                    b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("MapaAndMaya.Services.Models.YearsInCourse", b =>
-                {
-                    b.HasOne("MapaAndMaya.Services.Models.AcademicYear", "AcademicYear")
-                        .WithMany("YearsInCourse")
-                        .HasForeignKey("AcademicYearId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MapaAndMaya.Services.Models.Course", "Course")
-                        .WithMany("YearsInCourse")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AcademicYear");
-
-                    b.Navigation("Course");
-                });
-
             modelBuilder.Entity("MapaAndMaya.Services.Models.AcademicCourse", b =>
                 {
                     b.Navigation("Courses");
                 });
 
-            modelBuilder.Entity("MapaAndMaya.Services.Models.AcademicYear", b =>
-                {
-                    b.Navigation("YearsInCourse");
-                });
-
             modelBuilder.Entity("MapaAndMaya.Services.Models.Course", b =>
                 {
                     b.Navigation("SedeCourses");
-
-                    b.Navigation("YearsInCourse");
-                });
-
-            modelBuilder.Entity("MapaAndMaya.Services.Models.Degree", b =>
-                {
-                    b.Navigation("DegreeModalities");
                 });
 
             modelBuilder.Entity("MapaAndMaya.Services.Models.DegreeModality", b =>
                 {
                     b.Navigation("Courses");
-                });
-
-            modelBuilder.Entity("MapaAndMaya.Services.Models.Period", b =>
-                {
-                    b.Navigation("PeriodInYears");
-                });
-
-            modelBuilder.Entity("MapaAndMaya.Services.Models.PeriodInYear", b =>
-                {
-                    b.Navigation("SubjectsInPeriods");
                 });
 
             modelBuilder.Entity("MapaAndMaya.Services.Models.Sede", b =>
@@ -594,19 +443,9 @@ namespace MapaAndMaya.PostGresSql.Migrations.Migrations
                     b.Navigation("Courses");
                 });
 
-            modelBuilder.Entity("MapaAndMaya.Services.Models.Subject", b =>
-                {
-                    b.Navigation("SubjectsInPeriods");
-                });
-
             modelBuilder.Entity("MapaAndMaya.Services.Models.Town", b =>
                 {
                     b.Navigation("FacultyFilials");
-                });
-
-            modelBuilder.Entity("MapaAndMaya.Services.Models.YearsInCourse", b =>
-                {
-                    b.Navigation("PeriodInYears");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,0 +1,109 @@
+﻿@page "/course/{CourseId:int}/years"
+@using MapaAndMaya.Services
+@using MapaAndMaya.Services.NomenclatureServices
+@using MapaAndMaya.Components.Areas.Courses.Components
+
+@inject NavigationManager _navigationManager;
+@inject YearsAssignmentService _yearsAssignmentService;
+@inject CourseService _courseService;
+@inject PeriodService _periodService;
+@inject AcademicYearService _academicYearService;
+@inject DialogService _dialogService;
+@inject NotificationService _notificationService;
+
+@if (_courseNotFound)
+{
+    <EmptyTemplate>
+        <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">El curso solicitado no existe</p>
+    </EmptyTemplate>
+}
+else if (Course != default)
+{
+    <RadzenRow JustifyContent="JustifyContent.Start" AlignItems="AlignItems.End">
+        <RadzenText Text="Carrera: " TextStyle="TextStyle.H5" TagName="TagName.H3"/>
+        <RadzenText Text="@Course.DegreeModality.Degree!.Name" TextStyle="TextStyle.H6" TagName="TagName.H3" Style=""/>
+        <RadzenText Text="Modalidad: " TextStyle="TextStyle.H5" TagName="TagName.H3"/>
+        <RadzenText Text="@Course.DegreeModality.Modality!.Name" TextStyle="TextStyle.H6" TagName="TagName.H1" Style=""/>
+        <RadzenText Text="Plan: " TextStyle="TextStyle.H5" TagName="TagName.H3"/>
+        <RadzenText Text="@Course.StudyPlan!.Name" TextStyle="TextStyle.H6" TagName="TagName.H3" Style=""/>
+        <RadzenText Text="Curso: " TextStyle="TextStyle.H5" TagName="TagName.H3"/>
+        <RadzenText Text="@Course.AcademicCourse!.Name" TextStyle="TextStyle.H6" TagName="TagName.H3" Style=""/>
+    </RadzenRow>
+    <RadzenRow JustifyContent="JustifyContent.End" AlignItems="AlignItems.End">
+        <RadzenButton Icon="add_circle_outline" Text="Agregar Año Académico" ButtonStyle="ButtonStyle.Primary" Click="@AddItem" class="my-3"/>
+    </RadzenRow>
+
+    <RadzenTabs @ref="Tabs" RenderMode="TabRenderMode.Server">
+        <Tabs>
+
+            @foreach (var item in YearsInCourseCollection)
+            {
+                <RadzenTabsItem Text="@($"{item.AcademicYear.Name}")">
+                    <RadzenRow JustifyContent="JustifyContent.End" AlignItems="AlignItems.End">
+                        <RadzenButton Icon="delete_forever" Text="@($"Eliminar {item.AcademicYear.Name}")" Click="@( _=>DeleteItems(item))" class="my-3" ButtonStyle="ButtonStyle.Danger"/>
+                        
+                    </RadzenRow>
+                    <RadzenRow  Gap="0.5rem" RowGap="0.5rem">
+                      @foreach (var period in item.PeriodInYears)
+                                       {
+                                               <RadzenColumn Size="6" class="rz-p-5">
+                                                  <SubjectsInPeriodComponent PeriodInYearId="@(period.Id)"/>
+                                               </RadzenColumn>
+                                       }
+                      </RadzenRow>
+                </RadzenTabsItem>
+            }
+        </Tabs>
+    </RadzenTabs>
+}
+else
+{
+    <EmptyTemplate>
+        <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Cargando...</p>
+    </EmptyTemplate>
+}
+
+@code{
+
+    private async Task ShowFormularyDialog(Action onSummit, string title)
+    {
+        var result = await _dialogService.OpenAsync(title, ds =>
+                @<EditForm Model="@ViewModel" OnValidSubmit="@onSummit">
+                    <DataAnnotationsValidator/>
+                    <div class="container-fluid">
+                        <div class="row ">
+                            <div class="col-md-6 pb-3">
+                                <RadzenLabel Component="AcademicYear" Text="Año Académico"/> <br/>
+                                <RadzenDropDown Style="width:300px" TValue="int" Name="AcademicYear" Placeholder="Eliga un Año Académico" AllowFiltering="true" @bind-Value="ViewModel.AcademicYearId"
+                                                Data="@(AcademicYearsList)" TextProperty="Name" ValueProperty="Id"/>
+                                <ValidationMessage For="@(() => ViewModel.AcademicYearId)"/>
+                            </div>
+                            <div class="col-md-6 pb-3">
+                                <RadzenLabel Component="Period" Text="Periodos del Año"/> <br/>
+                                <RadzenDropDown Style="width:300px" Name="Period" AllowFiltering="true" @bind-Value="ViewModel.PeriodsId" Multiple=true AllowClear=true Placeholder="Selecciona los periodos para el año Académico"
+                                                Chips=true
+                                                Data="@(PeriodList)" TextProperty="Name" ValueProperty="Id"/>
+                                <ValidationMessage For="@(() => ViewModel.PeriodsId)"/>
+
+                            </div>
+                        </div>
+                    </div>
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
+                        <RadzenButton ButtonType="ButtonType.Submit" Text="Guardar" Icon="save" class="me-1"/>
+                        <RadzenButton Text="Cancelar" Icon="clear" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Light" class="me-1"/>
+            </RadzenStack>
+            </EditForm>
+            , new DialogOptions { Width = $"{800}px" }
+        );
+    }
+
+    private async Task BusyDialog(string message)
+    {
+        await _dialogService.OpenAsync("", _ =>
+            @<RadzenStack AlignItems="AlignItems.Center" Gap="2rem" Class="rz-p-12">
+                <RadzenText TextStyle="TextStyle.H6" Text="@message"></RadzenText>
+        </RadzenStack>, new DialogOptions { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+    }
+
+
+}

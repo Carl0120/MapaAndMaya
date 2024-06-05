@@ -1,22 +1,28 @@
-﻿using MapaAndMaya.Services;
-using MapaAndMaya.Services.Models;
+﻿using MapaAndMaya.Services.Models;
 using MapaAndMaya.Services.ViewModels;
 using Radzen;
 using Radzen.Blazor;
 
-namespace MapaAndMaya.Components.Areas.Sede;
+namespace MapaAndMaya.Components.Areas.Courses;
 
-public partial class SedeTypes
+public partial class Courses
 {
+    
     private bool _isLoading;
 
-    private RadzenDataGrid<SedeType> _grid = new();
+    private RadzenDataGrid<Course> _grid = new();
 
-    private IEnumerable<SedeType> ItemsCollection { get; set; } = new List<SedeType>();
+    private IEnumerable<Course> ItemsCollection { get; set; } = new List<Course>();
+    
+    private List<AcademicCourse> AcademicCourseCollection { get; set; } = new List<AcademicCourse>();
+    
+    private List<StudyPlan> StudyPlanCollection { get; set; } = new List<StudyPlan>();
+    
+    private List<Degree> DegreeCollection { get; set; } = new List<Degree>();
 
-    private IList<SedeType>? SelectedItems { get; set; } = new List<SedeType>();
+    private IList<Course>? SelectedItems { get; set; } = new List<Course>();
 
-    private GenericViewModel ViewModel { get; set; } = new();
+    private CourseViewModel ViewModel { get; set; } = new();
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -25,17 +31,22 @@ public partial class SedeTypes
         return base.OnAfterRenderAsync(firstRender);
     }
 
+    
     protected override async Task OnInitializedAsync()
     {
         _isLoading = true;
-        ItemsCollection = _sedeTypeService.Find();
+        ItemsCollection = _courseService.Find();
         _isLoading = false;
+       await base.OnInitializedAsync();
     }
 
     private async void AddItem()
-    {
-        ViewModel = new GenericViewModel();
-        await ShowFormularyDialog(AddFormSubmit, "Adicionar Tipo de Sede");
+    { 
+        AcademicCourseCollection = _academicCourseService.Find().Reverse().ToList();
+        StudyPlanCollection = _studyPlanService.Find().ToList();
+        DegreeCollection = (List<Degree>) await _degreeService.GetWhitModality();
+        ViewModel = new CourseViewModel();
+        await ShowFormularyDialog(new List<DegreeModality>(),AddFormSubmit, "Adicionar Curso");
     }
 
     private async void AddFormSubmit()
@@ -43,21 +54,23 @@ public partial class SedeTypes
         _dialogService.Close();
         var openDialogTask = BusyDialog("Guardando ...");
 
-        ActionResult<SedeType> response = await _sedeTypeService.Create(ViewModel);
-        if (response.Status)
+        var response = await _courseService.Create(ViewModel);
+        if (response.Status && response.Element != null)
             NotifyOk(response.Title);
         else
             NotifyErrors(response.Title, response.Errors);
     }
 
-    private async void EditItem(SedeType item)
+    private async void EditItem(Course item)
     {
-        ViewModel = new GenericViewModel()
-        {
-            Id = item.Id,
-            Name = item.Name
-        };
-        await ShowFormularyDialog(EditFormSubmit, "Editar tipo de Sede");
+        AcademicCourseCollection = _academicCourseService.Find().Reverse().ToList();
+        StudyPlanCollection = _studyPlanService.Find().ToList();
+        DegreeCollection = (List<Degree> )await _degreeService.GetWhitModality();
+        
+        ViewModel =  CourseViewModel.Clone(item);
+            ICollection<DegreeModality> degreeModalities =  DegreeCollection.First(e => e.Id == ViewModel.DegreeId).DegreeModalities;
+        await ShowFormularyDialog(degreeModalities,EditFormSubmit, "Editar Curso");
+        
     }
 
     private async void EditFormSubmit()
@@ -65,7 +78,7 @@ public partial class SedeTypes
         _dialogService.Close();
         var openDialogTask = BusyDialog("Guardando ...");
 
-        var response = await _sedeTypeService.Update(ViewModel);
+        var response = await _courseService.Update(ViewModel);
 
         if (response.Status)
             NotifyOk(response.Title);
@@ -84,20 +97,20 @@ public partial class SedeTypes
 
             if (SelectedItems != null)
             {
-                var response = await _sedeTypeService.Delete(SelectedItems);
+                var response = await _courseService.Delete(SelectedItems);
                 if (response.Status)
                     NotifyOk(response.Title);
                 else
                     NotifyErrors(response.Title, response.Errors);
             }
 
-            SelectedItems = new List<SedeType>();
+            SelectedItems = new List<Course>();
         }
     }
 
     private async void ReloadGridButton()
     {
-        SelectedItems = new List<SedeType>();
+        SelectedItems = new List<Course>();
         _grid.Reset(true);
         await _grid.FirstPage(true);
     }

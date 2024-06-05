@@ -26,7 +26,10 @@ public class MapaAndMayaDbContext : DbContext
     public DbSet<Subject> Subjects { get; set; }
     public DbSet<Period> Periods { get; set; }
     public DbSet<AcademicYear> AcademicYears { get; set; }
-
+    public DbSet<YearsInCourse> YearsInCourses { get; set; }
+    public DbSet<PeriodInYear> PeriodInYear { get; set; }
+    public DbSet<SubjectsInPeriod> SubjectsInPeriods { get; set; }
+    
     public DbSet<Course> Courses { get; set; }
     public DbSet<SedeCourse> SedeCourses { get; set; }
 
@@ -53,8 +56,27 @@ public class MapaAndMayaDbContext : DbContext
 
         modelBuilder.Entity<AcademicYear>().HasIndex(e => e.Name).IsUnique();
         modelBuilder.Entity<AcademicYear>().HasIndex(e => e.Order).IsUnique();
+        
+        modelBuilder.Entity<YearsInCourse>().HasIndex(e=> new{e.CourseId,e.AcademicYearId} ).IsUnique();
+        modelBuilder.Entity<YearsInCourse>().HasOne(e => e.Course)
+            .WithMany(e => e.YearsInCourse).HasForeignKey(e => e.CourseId).IsRequired();
+        modelBuilder.Entity<YearsInCourse>().HasOne(e => e.AcademicYear)
+            .WithMany(e => e.YearsInCourse).HasForeignKey(e => e.AcademicYearId).IsRequired();
+        
+        modelBuilder.Entity<PeriodInYear>().HasIndex(e=> new{e.PeriodId,e.YearsInCourseId} ).IsUnique();
+        modelBuilder.Entity<PeriodInYear>().HasOne(e => e.YearsInCourse)
+            .WithMany(e => e.PeriodInYears).HasForeignKey(e => e.YearsInCourseId).IsRequired();
+        modelBuilder.Entity<PeriodInYear>().HasOne(e => e.Period)
+            .WithMany(e => e.PeriodInYears).HasForeignKey(e => e.PeriodId).IsRequired();
+
+        modelBuilder.Entity<SubjectsInPeriod>().HasIndex(e=> new{e.SubjectId,e.PeriodInYearId} ).IsUnique();
+        modelBuilder.Entity<SubjectsInPeriod>().HasOne(e => e.Subject)
+            .WithMany(e => e.SubjectsInPeriods).HasForeignKey(e => e.SubjectId).IsRequired();
+        modelBuilder.Entity<SubjectsInPeriod>().HasOne(e => e.PeriodInYear)
+            .WithMany(e => e.SubjectsInPeriods).HasForeignKey(e => e.PeriodInYearId).IsRequired();
 
 
+        
         //Course
         modelBuilder.Entity<Course>().HasKey(e => e.Id);
         modelBuilder.Entity<Course>().HasOne(e => e.StudyPlan)
@@ -65,8 +87,7 @@ public class MapaAndMayaDbContext : DbContext
             .WithMany(e => e.Courses).HasForeignKey(e => e.DegreeModalityId).IsRequired();
         modelBuilder.Entity<Course>().HasIndex(e => new { e.DegreeModalityId, e.StudyPlanId, e.AcademicCourseId })
             .IsUnique();
-
-
+        
         base.OnModelCreating(modelBuilder);
     }
 }

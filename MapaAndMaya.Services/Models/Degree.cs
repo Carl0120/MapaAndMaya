@@ -2,5 +2,5 @@
 
 public class Degree : NomenclatureBase
 {
-    private ICollection<DegreeModality> DegreeModalities { get; } = new List<DegreeModality>();
+    public ICollection<DegreeModality> DegreeModalities { get; } = new List<DegreeModality>();
 }

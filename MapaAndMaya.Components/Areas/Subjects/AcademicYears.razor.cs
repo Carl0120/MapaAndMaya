@@ -17,7 +17,6 @@ public partial class AcademicYears
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender) ReloadGridButton();
-
         return base.OnAfterRenderAsync(firstRender);
     }
 
@@ -98,6 +97,7 @@ public partial class AcademicYears
         _grid.Reset(true);
         await _grid.FirstPage(true);
     }
+    
 
     private async void NotifyOk(string title)
     {

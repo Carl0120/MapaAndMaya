@@ -7,18 +7,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 
-namespace MapaAndMaya.Services.NomenclatureServices;
+namespace MapaAndMaya.Services.Repositories;
 
-public abstract class GenericService<TE, TM> : ICrudService<TE, TM>
+public abstract class GenericRepository<TE, TM> : ICrudService<TE, TM>
     where TE : NomenclatureBase, new() where TM : GenericViewModel
 {
-    protected readonly ILogger<GenericService<TE, TM>> _logger;
+    protected readonly ILogger<GenericRepository<TE, TM>> _logger;
 
     protected readonly MapaAndMayaDbContext _dbContext;
 
     private readonly DbSet<TE> _dbSet;
 
-    protected GenericService(ILogger<GenericService<TE, TM>> logger, MapaAndMayaDbContext dbContext)
+    protected GenericRepository(ILogger<GenericRepository<TE, TM>> logger, MapaAndMayaDbContext dbContext)
     {
         _logger = logger;
         _dbContext = dbContext;
@@ -40,6 +40,7 @@ public abstract class GenericService<TE, TM> : ICrudService<TE, TM>
 
         var entity = new TE();
         model.ToEntity(entity);
+       
         try
         {
             EntityEntry<TE> entityEntry = _dbSet.Add(entity);

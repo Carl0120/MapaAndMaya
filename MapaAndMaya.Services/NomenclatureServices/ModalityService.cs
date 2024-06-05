@@ -1,12 +1,14 @@
-﻿using MapaAndMaya.Services.DB;
+﻿using MapaAndMaya.Services.Contracts;
+using MapaAndMaya.Services.DB;
 using MapaAndMaya.Services.Models;
+using MapaAndMaya.Services.Repositories;
 using MapaAndMaya.Services.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MapaAndMaya.Services.NomenclatureServices;
 
-public class ModalityService : GenericService<Modality, GenericViewModel>
+public class ModalityService :ICrudService<Modality,GenericViewModel>
 {
     public ModalityService(ILogger<GenericService<Modality, GenericViewModel>> logger, MapaAndMayaDbContext dbContext) :
         base(logger, dbContext)
@@ -45,5 +47,20 @@ public class ModalityService : GenericService<Modality, GenericViewModel>
                 return result;
             }
         }
+    }
+
+    public Task<ActionResult<Modality>> Update(GenericViewModel model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ActionResult<IList<Modality>>> Delete(IList<Modality> entities)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<Modality> Find()
+    {
+        throw new NotImplementedException();
     }
 }

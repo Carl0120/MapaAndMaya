@@ -1,7 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace MapaAndMaya.Services.Models;
+﻿namespace MapaAndMaya.Services.Models;
 
 public class Period : NomenclatureBase
 {
+    public ICollection<PeriodInYear> PeriodInYears { get; } = new List<PeriodInYear>();
 }

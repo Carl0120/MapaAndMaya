@@ -1,23 +1,27 @@
 ﻿using MapaAndMaya.Services;
 using MapaAndMaya.Services.Models;
 using MapaAndMaya.Services.ViewModels;
-using Microsoft.AspNetCore.Components;
 using Radzen;
 using Radzen.Blazor;
 
-namespace MapaAndMaya.Components.Areas.Sede;
+namespace MapaAndMaya.Components.Areas.Sedes;
 
-public partial class Towns
+public partial class Sedes
 {
+    
     private bool _isLoading;
 
-    private RadzenDataGrid<Town> _grid = new();
+    private RadzenDataGrid<Sede> _grid = new();
+    
+    private IEnumerable<Sede> ItemsCollection { get; set; } = new List<Sede>();
+    
+    private IEnumerable<SedeType> SedeTypesCollection { get; set; } = new List<SedeType>();
+    
+    private IEnumerable<Town> TownsCollection { get; set; } = new List<Town>();
 
-    private IEnumerable<Town> ItemsCollection { get; set; } = new List<Town>();
+    private IList<Sede>? SelectedItems { get; set; } = new List<Sede>();
 
-    private IList<Town>? SelectedItems { get; set; } = new List<Town>();
-
-    private GenericViewModel ViewModel { get; set; } = new();
+    private SedeViewModel ViewModel { get; set; } = new();
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -29,14 +33,16 @@ public partial class Towns
     protected override async Task OnInitializedAsync()
     {
         _isLoading = true;
-        ItemsCollection = _townService.Find();
+        ItemsCollection = _sedeService.Find();
+        SedeTypesCollection = _sedeTypeService.Find();
+        TownsCollection = _townService.Find();
         _isLoading = false;
     }
 
     private async void AddItem()
     {
-        ViewModel = new GenericViewModel();
-        await ShowFormularyDialog(AddFormSubmit, "Adicionar Municipio");
+        ViewModel = new SedeViewModel();
+        await ShowFormularyDialog(AddFormSubmit, "Adicionar Sede");
     }
 
     private async void AddFormSubmit()
@@ -44,21 +50,18 @@ public partial class Towns
         _dialogService.Close();
         var openDialogTask = BusyDialog("Guardando ...");
 
-        ActionResult<Town> response = await _townService.Create(ViewModel);
-        if (response.Status && response.Element != null)
+        ActionResult<Sede> response = await _sedeService.Create(ViewModel);
+        if (response.Status)
             NotifyOk(response.Title);
         else
             NotifyErrors(response.Title, response.Errors);
     }
 
-    private async void EditItem(Town item)
+    private async void EditItem(Sede item)
     {
-        ViewModel = new GenericViewModel()
-        {
-            Id = item.Id,
-            Name = item.Name
-        };
-        await ShowFormularyDialog(EditFormSubmit, "Editar Municipio");
+        ViewModel = SedeViewModel.Clone(item);
+        
+        await ShowFormularyDialog(EditFormSubmit, "Editar Sede");
     }
 
     private async void EditFormSubmit()
@@ -66,7 +69,7 @@ public partial class Towns
         _dialogService.Close();
         var openDialogTask = BusyDialog("Guardando ...");
 
-        var response = await _townService.Update(ViewModel);
+        var response = await _sedeTypeService.Update(ViewModel);
 
         if (response.Status)
             NotifyOk(response.Title);
@@ -85,20 +88,20 @@ public partial class Towns
 
             if (SelectedItems != null)
             {
-                var response = await _townService.Delete(SelectedItems);
+                var response = await _sedeService.Delete(SelectedItems);
                 if (response.Status)
                     NotifyOk(response.Title);
                 else
                     NotifyErrors(response.Title, response.Errors);
             }
 
-            SelectedItems = new List<Town>();
+            SelectedItems = new List<Sede>();
         }
     }
 
     private async void ReloadGridButton()
     {
-        SelectedItems = new List<Town>();
+        SelectedItems = new List<Sede>();
         _grid.Reset(true);
         await _grid.FirstPage(true);
     }

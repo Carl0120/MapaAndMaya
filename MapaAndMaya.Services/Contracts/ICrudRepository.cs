@@ -1,6 +1,6 @@
 ﻿namespace MapaAndMaya.Services.Contracts;
 
-public interface ICrudService<TE, TM> where TE : class where TM : class
+public interface ICrudRepository<TE, TM> where TE : class where TM : class
 {
     public Task<ActionResult<TE>> Create(TM model);
 

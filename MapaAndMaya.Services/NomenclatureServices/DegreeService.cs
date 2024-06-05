@@ -1,5 +1,6 @@
 ﻿using MapaAndMaya.Services.DB;
 using MapaAndMaya.Services.Models;
+using MapaAndMaya.Services.Repositories;
 using MapaAndMaya.Services.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -44,6 +45,23 @@ public class DegreeService : GenericService<Degree, GenericViewModel>
                 result.CreateResponseFail(ex);
                 return result;
             }
+        }
+    }
+
+    public  async Task<IEnumerable<Degree>> GetWhitModality()
+    {
+        try
+        {
+            var list = await _dbContext.Degrees.OrderBy(e => e.Name)
+                .Include(e=>e.DegreeModalities)
+                .ThenInclude(e=>e.Modality)
+                .ToListAsync();
+            return list;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return new List<Degree>();
         }
     }
 }

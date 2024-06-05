@@ -1,0 +1,103 @@
+﻿@using MapaAndMaya.Services
+@using MapaAndMaya.Services.Models
+@using MapaAndMaya.Services.NomenclatureServices
+
+@inject SubjectsAssignmentService _subjectsAssignmentService;
+@inject SubjectService _subjectService;
+@inject DialogService _dialogService;
+@inject NotificationService _notificationService;
+
+<RadzenCard Class="rz-my-6 rz-mx-auto" Variant="Variant.Text">
+   @if (_courseNotFound)
+   {
+       <EmptyTemplate>
+           <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Ha ocurrido un error Recarge la Pagina</p>
+       </EmptyTemplate>
+   }
+   else if (PeriodInYear != default)
+   {
+      
+           <RadzenText Text="@($"{PeriodInYear.Period.Name}")"></RadzenText>
+       
+
+       <RadzenRow JustifyContent="JustifyContent.End" AlignItems="AlignItems.End">
+        <RadzenButton Icon="add_circle_outline" Text="Agregar" ButtonStyle="ButtonStyle.Primary" Click="@AddItem" class="my-3"/>
+        <RadzenButton Icon="delete_forever" Text="Eliminar" Click="@DeleteItems" class="my-3" ButtonStyle="ButtonStyle.Danger" Disabled="@(SelectedItems == null || SelectedItems.Count == 0)"/>
+
+    </RadzenRow>
+    <RadzenDataGrid @ref="_grid" Data="@ItemsCollection" TItem="SubjectsInPeriod" AllowPaging="true" AllowColumnResize="true" style="box-shadow: var(--rz-shadow-5);"
+                    PagerHorizontalAlign="HorizontalAlign.Left" IsLoading="@_isLoading" ShowPagingSummary="true"
+                    AllowSorting="true" SelectionMode="DataGridSelectionMode.Multiple" AllowRowSelectOnRowClick="false" @bind-Value="@SelectedItems" >
+
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Sin Asignaturas.</p>
+        </EmptyTemplate>
+
+
+        <Columns>
+            <RadzenDataGridColumn TItem="SubjectsInPeriod" Width="60px" Sortable="false" Filterable="false">
+                <HeaderTemplate>
+                    <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string, object> { { "aria-label", "Select all items" } })"
+                                    Value="@(SelectedItems == null || SelectedItems?.Any() != true ? false : !ItemsCollection.All(i => SelectedItems.Contains(i)) ? null : ItemsCollection.Any(i => SelectedItems.Contains(i)))"
+                                    Change="@(args => SelectedItems = args == true ? ItemsCollection.ToList() : null)"/>
+                </HeaderTemplate>
+                <Template Context="data">
+                    <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(SelectedItems != null && SelectedItems.Contains(data))" InputAttributes="@(new Dictionary<string, object> { { "aria-label", "Select item" } })"
+                                    TValue="bool" Change=@(args => { _grid.SelectRow(data);})/>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="SubjectsInPeriod" Property="Subject.Name" Title="Nombre"/>
+            <RadzenDataGridColumn TItem="SubjectsInPeriod" Context="data" Title="Tiene Examen Final"  Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="156px">
+                                                    <Template Context="data">
+                                                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                                                            <RadzenSwitch Disabled="_disableSwitch" @bind-Value=@data.HaveFinalExam Change=@(args => OnChange(data)) Name="HaveFinalExam2"/>
+                                                        </RadzenStack>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+   }
+   else
+   {
+       <EmptyTemplate>
+           <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Cargando...</p>
+       </EmptyTemplate>
+   }
+   
+</RadzenCard>
+    
+  
+@code
+{
+     private async Task ShowFormularyDialog(Action onSummit, string title)
+        {
+            var result = await _dialogService.OpenAsync(title, ds =>
+                    @<EditForm Model="@ViewModel" OnValidSubmit="@onSummit">
+                        <DataAnnotationsValidator/>
+                        <div class="container-fluid">
+                            <div class="row ">
+                                <div class="col-md-12 pb-3">
+                                    <RadzenLabel Component="Subject" Text="Asignaturas"/><br/>
+                                    <RadzenDropDown Style="width:300px"  Name="Subject" Placeholder="Eliga las Asignatura de este Periodo" AllowFiltering="true" @bind-Value="ViewModel.SubjectsIdList"
+                                                    Data="@(SubjectsList)"  TextProperty="Name" ValueProperty="Id" Multiple=true AllowClear=true  Chips=true />
+                                    <ValidationMessage For="@(() => ViewModel.SubjectsIdList)"/>
+                                </div>
+                            </div>
+                        </div>
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
+                            <RadzenButton ButtonType="ButtonType.Submit" Text="Guardar" Icon="save" class="me-1"/>
+                            <RadzenButton Text="Cancelar" Icon="clear" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Light" class="me-1"/>
+                </RadzenStack>
+                </EditForm>
+                , new DialogOptions { Width = $"{800}px" }
+            );
+        }
+
+     private async Task BusyDialog(string message)
+     {
+         await _dialogService.OpenAsync("", _ =>
+             @<RadzenStack AlignItems="AlignItems.Center" Gap="2rem" Class="rz-p-12">
+                 <RadzenText TextStyle="TextStyle.H6" Text="@message"></RadzenText>
+         </RadzenStack>, new DialogOptions { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+     }
+}

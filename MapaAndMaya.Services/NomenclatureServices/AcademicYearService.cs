@@ -11,9 +11,9 @@ namespace MapaAndMaya.Services.NomenclatureServices;
 
 public class AcademicYearService : ICrudService<AcademicYear, AcademicYearViewModel>
 {
-    protected readonly ILogger<AcademicYearService> _logger;
+    private readonly ILogger<AcademicYearService> _logger;
 
-    protected readonly MapaAndMayaDbContext _dbContext;
+    private readonly MapaAndMayaDbContext _dbContext;
 
 
     public AcademicYearService(ILogger<AcademicYearService> logger, MapaAndMayaDbContext dbContext)
@@ -39,8 +39,12 @@ public class AcademicYearService : ICrudService<AcademicYear, AcademicYearViewMo
         model.ToEntity(entity);
         try
         {
-            if (ordenAny) DesplazarOrden(model.Order);
-
+            if (ordenAny)
+            {
+                List<AcademicYear> years = await _dbContext.AcademicYears.ToListAsync();
+                DesplazarOrder(years, entity.Order);
+            }
+                
             EntityEntry<AcademicYear> entityEntry = _dbContext.AcademicYears.Add(entity);
             await _dbContext.SaveChangesAsync();
             result.CreateResponseSuccess(entityEntry.Entity);
@@ -58,26 +62,29 @@ public class AcademicYearService : ICrudService<AcademicYear, AcademicYearViewMo
     {
         ActionResult<AcademicYear> result = new();
 
-        var entity = await _dbContext.AcademicYears.AsNoTracking().FirstOrDefaultAsync(e => e.Id == model.Id);
+        var exist = await _dbContext.AcademicYears.AnyAsync(e => e.Id == model.Id);
         var existAny = await _dbContext.AcademicYears.AnyAsync(p => p.Name == model.Name && p.Id != model.Id);
-        var ordenAny = await _dbContext.AcademicYears.AnyAsync(e => e.Order == model.Order && e.Id != model.Id);
 
-        if (entity == null) result.Errors.Add("No se encuentra el elemento");
-        if (existAny) result.Errors.Add("El elemento ya existe");
+        if (!exist) result.Errors.Add("No se encuentra el elemento");
+        
+        if (existAny) result.Errors.Add("El nombre ya esta en uso");
 
         if (result.Errors.Any())
         {
             result.CreateResponseInvalidAction();
             return result;
         }
+        
+            List<AcademicYear> years = await _dbContext.AcademicYears.ToListAsync();
+            DesplazarOrder(years, model.Order);
+            
+        AcademicYear? year =  years.Find(e=>e.Id==model.Id);
 
-        model.ToEntity(entity!);
+        if (year != null) model.ToEntity(year);
         try
         {
-            if (ordenAny) DesplazarOrden(model.Order);
-            _dbContext.AcademicYears.Update(entity!);
             await _dbContext.SaveChangesAsync();
-            result.CreateResponseSuccess(entity!);
+            result.CreateResponseSuccess(year!);
             return result;
         }
         catch (Exception ex)
@@ -92,10 +99,10 @@ public class AcademicYearService : ICrudService<AcademicYear, AcademicYearViewMo
     {
         ActionResult<IList<AcademicYear>> result = new();
 
+        var ids = entities.Select(e => e.Id).ToList();
         try
         {
-            _dbContext.AcademicYears.RemoveRange(entities);
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.AcademicYears.Where(e => ids.Contains(e.Id)).ExecuteDeleteAsync();
             result.CreateResponseSuccess(entities);
             return result;
         }
@@ -120,12 +127,27 @@ public class AcademicYearService : ICrudService<AcademicYear, AcademicYearViewMo
             return Enumerable.Empty<AcademicYear>();
         }
     }
-
-    private async void DesplazarOrden(int order)
+    
+    private async void DesplazarOrder(List<AcademicYear> years, int order)
     {
-        var elements = await _dbContext.AcademicYears.OrderBy(e => e.Order).Where(e => e.Order >= order).ToListAsync();
-
-        foreach (var element in elements) element.Order++;
-        await _dbContext.SaveChangesAsync();
+        
+        foreach (var element in years.Where(e=>e.Order >= order).ToList()) 
+            element.Order++;
+        
+          
     }
+    
+      public async void ActualizarOrdenes()
+      {
+          List<AcademicYear> years = await _dbContext.AcademicYears.ToListAsync();
+            years.Sort((x, y) => x.Order.CompareTo(y.Order));
+            
+            for (int i = 0; i < years.Count; i++)
+            {
+                years[i].Order = i + 1;
+            }
+
+          await  _dbContext.SaveChangesAsync();
+      }
+ 
 }

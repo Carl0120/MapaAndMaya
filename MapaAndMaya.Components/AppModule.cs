@@ -2,10 +2,10 @@
 using MapaAndMaya.Services;
 using MapaAndMaya.Services.DB;
 using MapaAndMaya.Services.NomenclatureServices;
+using MapaAndMaya.Services.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Radzen;
 
 namespace MapaAndMaya.Components;
@@ -28,18 +28,10 @@ public class AppModule : IAppModule
             optionsAction.UseNpgsql(connectionString,
                 builder => { builder.MigrationsAssembly("MapaAndMaya.PostGresSql.Migrations"); }
             );
-        }, ServiceLifetime.Scoped);
+        },ServiceLifetime.Transient);
 
-        //Add Services
-        services.AddScoped<DegreeService>();
-        services.AddScoped<ModalityService>();
-        services.AddScoped<TownService>();
-        services.AddScoped<SedeTypeService>();
-        services.AddScoped<SubjectService>();
-        services.AddScoped<AcademicCourseService>();
-        services.AddScoped<AcademicYearService>();
-        services.AddScoped<PeriodService>();
-        services.AddScoped<StudyPlanService>();
+    AddServices(services);
+    AddRepositories(services);
     }
 
     public void InitModule(IServiceProvider services)
@@ -47,4 +39,29 @@ public class AppModule : IAppModule
         var dbContext = services.GetRequiredService<MapaAndMayaDbContext>();
         dbContext.Database.Migrate();
     }
+
+    private void AddServices(IServiceCollection services)
+    {
+        services.AddTransient<DegreeService>();
+        services.AddTransient<ModalityService>();
+        services.AddTransient<TownService>();
+        services.AddTransient<SedeTypeService>();
+        services.AddTransient<SubjectService>();
+        services.AddTransient<AcademicCourseService>();
+        services.AddTransient<AcademicYearService>();
+        services.AddTransient<PeriodService>();
+        services.AddTransient<StudyPlanService>();
+        services.AddTransient<SedeService>();
+        services.AddTransient<CourseService>();
+        services.AddTransient<YearsAssignmentService>();
+        services.AddTransient<SubjectsAssignmentService>();
+    }
+    private void AddRepositories(IServiceCollection services)
+    {
+        services.AddTransient<ModalityRepository>();
+       
+    }
+    
+    
+    
 }

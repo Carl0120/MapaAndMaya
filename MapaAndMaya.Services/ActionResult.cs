@@ -16,7 +16,7 @@ public class ActionResult<T>
     public T? Element { get; private set; }
     public NotifySeverity Severity { get; private set; }
     public List<string> Errors { get; } = new();
-
+    
     public void CreateResponseSuccess(T entity)
     {
         Title = "Exito";
@@ -39,6 +39,7 @@ public class ActionResult<T>
         Title = "Accion Inválida";
         Status = false;
         Element = default;
-        Severity = NotifySeverity.Warning;
+        Severity = NotifySeverity.Error;
     }
+   
 }
