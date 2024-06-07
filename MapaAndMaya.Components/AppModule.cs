@@ -58,7 +58,7 @@ public class AppModule : IAppModule
     }
     private void AddRepositories(IServiceCollection services)
     {
-        services.AddTransient<ModalityRepository>();
+      
        
     }
     

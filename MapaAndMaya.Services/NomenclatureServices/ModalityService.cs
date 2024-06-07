@@ -8,10 +8,10 @@ using Microsoft.Extensions.Logging;
 
 namespace MapaAndMaya.Services.NomenclatureServices;
 
-public class ModalityService :ICrudService<Modality,GenericViewModel>
+public class ModalityService : GenericService<Modality, GenericViewModel>
 {
-    public ModalityService(ILogger<GenericService<Modality, GenericViewModel>> logger, MapaAndMayaDbContext dbContext) :
-        base(logger, dbContext)
+    
+    public ModalityService(ILogger<GenericService<Modality, GenericViewModel>> logger, MapaAndMayaDbContext dbContext) : base(logger, dbContext)
     {
     }
 
@@ -48,19 +48,5 @@ public class ModalityService :ICrudService<Modality,GenericViewModel>
             }
         }
     }
-
-    public Task<ActionResult<Modality>> Update(GenericViewModel model)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<ActionResult<IList<Modality>>> Delete(IList<Modality> entities)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IEnumerable<Modality> Find()
-    {
-        throw new NotImplementedException();
-    }
+    
 }

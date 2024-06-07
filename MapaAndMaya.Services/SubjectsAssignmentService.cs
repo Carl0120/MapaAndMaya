@@ -115,7 +115,7 @@ public class SubjectsAssignmentService
             }
         }
 
-        public async Task<bool> ChangeFinalExam(SubjectsInPeriod data)
+     public async Task<bool> ChangeFinalExam(SubjectsInPeriod data)
         {
             try
             {
