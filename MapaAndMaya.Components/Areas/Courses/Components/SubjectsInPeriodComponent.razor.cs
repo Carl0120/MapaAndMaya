@@ -1,4 +1,4 @@
-﻿using MapaAndMaya.Services.Models;
+﻿using MapaAndMaya.Services.Core.Models;
 using MapaAndMaya.Services.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Radzen;
@@ -30,6 +30,7 @@ public partial class SubjectsInPeriodComponent
     
     protected override async Task OnParametersSetAsync()
     {
+        _isLoading = true;
         PeriodInYear = await _subjectsAssignmentService.GetPeriodInYear(PeriodInYearId);
         if (PeriodInYear == default)
         {
@@ -38,6 +39,7 @@ public partial class SubjectsInPeriodComponent
         }else{
             ItemsCollection = await _subjectsAssignmentService.GetSubjectsInPeriod(PeriodInYearId);
         }
+        _isLoading = false;
         await base.OnParametersSetAsync();
     }
 
@@ -64,14 +66,7 @@ public partial class SubjectsInPeriodComponent
         else
             NotifyErrors(response.Title, response.Errors);
     }
-
-    private async void EditItem(SubjectsInPeriod item)
-    {
-    }
-
-    private async void EditFormSubmit()
-    {
-    }
+    
 
     private async void DeleteItems()
     {

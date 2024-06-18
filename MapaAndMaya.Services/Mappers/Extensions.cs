@@ -1,4 +1,4 @@
-﻿using MapaAndMaya.Services.Models;
+﻿using MapaAndMaya.Services.Core.Models;
 using MapaAndMaya.Services.ViewModels;
 
 namespace MapaAndMaya.Services.Mappers;
@@ -24,42 +24,52 @@ public static class Extensions
     }
 
     public static void ToEntity(this CourseViewModel model, Course entity)
-        {
-            entity.AcademicCourseId = model.AcademicCourseId;
-            entity.DegreeModalityId = model.DegreeModalityId;
-            entity.StudyPlanId = model.StudyPlanId;
-        }
-    
+    {
+        entity.AcademicCourseId = model.AcademicCourseId;
+        entity.DegreeModalityId = model.DegreeModalityId;
+        entity.StudyPlanId = model.StudyPlanId;
+    }
+
     public static void ToEntity(this YearsAssignmentViewModel model, YearsInCourse entity)
     {
         entity.AcademicYearId = model.AcademicYearId;
         entity.CourseId = model.CourseId;
 
         ICollection<PeriodInYear> periodInYears = new List<PeriodInYear>();
-        
+
         foreach (var periodId in model.PeriodsId)
-        {
             periodInYears.Add(new PeriodInYear
             {
                 PeriodId = periodId,
                 YearsInCourseId = entity.Id
             });
-        }
+
         entity.PeriodInYears = periodInYears;
     }
-    
-    public static void ToEntity(this SubjectsAssignmentViewModel model,  List<SubjectsInPeriod> entities)
+
+    public static void ToEntity(this SubjectsAssignmentViewModel model, List<SubjectsInPeriod> entities)
     {
         foreach (var item in model.SubjectsIdList)
         {
             var entity = new SubjectsInPeriod
             {
-PeriodInYearId = model.PeriodInYearId,
-SubjectId = item
+                PeriodInYearId = model.PeriodInYearId,
+                SubjectId = item
             };
             entities.Add(entity);
         }
-        
     }
-   
+
+    public static void ToEntity(this SedeAssignmentViewModel model, List<SedeCourse> entities)
+    {
+        foreach (var item in model.SedeIdList)
+        {
+            var entity = new SedeCourse
+            {
+                CourseId = model.CourseId,
+                SedeId = item
+            };
+            entities.Add(entity);
+        }
+    }
 }

@@ -1,0 +1,19 @@
+﻿@using MapaAndMaya.Services.Core.Models
+
+<RadzenRow JustifyContent="JustifyContent.Start" AlignItems="AlignItems.End">
+ <RadzenText Text="Curso: " TextStyle="TextStyle.H5" TagName="TagName.H3"/>
+        <RadzenText Text="@Course.AcademicCourse!.Name" TextStyle="TextStyle.H6" TagName="TagName.H3" Style=""/>
+        <RadzenText Text="Carrera: " TextStyle="TextStyle.H5" TagName="TagName.H3"/>
+        <RadzenText Text="@Course.DegreeModality.Degree!.Name" TextStyle="TextStyle.H6" TagName="TagName.H3" Style=""/>
+        <RadzenText Text="Modalidad: " TextStyle="TextStyle.H5" TagName="TagName.H3"/>
+        <RadzenText Text="@Course.DegreeModality.Modality!.Name" TextStyle="TextStyle.H6" TagName="TagName.H1" Style=""/>
+        <RadzenText Text="Plan: " TextStyle="TextStyle.H5" TagName="TagName.H3"/>
+        <RadzenText Text="@Course.StudyPlan!.Name" TextStyle="TextStyle.H6" TagName="TagName.H3" Style=""/>
+       
+    </RadzenRow>
+
+@code {
+    
+    [Parameter]
+   public  Course Course { get; set; }
+}

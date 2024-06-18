@@ -1,13 +1,13 @@
 ﻿@page "/degrees"
-@using MapaAndMaya.Services.Models
-@using MapaAndMaya.Services.NomenclatureServices
+@using MapaAndMaya.Services.Core.Models
+@using MapaAndMaya.Services.Services.NomenclatureServices
 
 @inject DegreeService _degreeService;
 @inject DialogService _dialogService;
 @inject NotificationService _notificationService;
-<RadzenRow >
-    <RadzenText Text="Carreras" TextStyle="TextStyle.H3" TagName="TagName.H1"/>
-</RadzenRow>
+
+<HeaderComponent Name="Carreras"/>
+
 <RadzenRow JustifyContent="JustifyContent.End" AlignItems="AlignItems.End">
     <RadzenButton Icon="add_circle_outline" Text="Agregar" ButtonStyle="ButtonStyle.Primary" Click="@AddItem" class="my-3"/>
     <RadzenButton Icon="delete_forever" Text="Eliminar" Click="@DeleteItems" class="my-3" ButtonStyle="ButtonStyle.Danger" Disabled="@(SelectedItems == null || SelectedItems.Count == 0)"/>
