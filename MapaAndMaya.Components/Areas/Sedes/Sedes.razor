@@ -1,16 +1,17 @@
 ﻿@page "/sedes"
-@using MapaAndMaya.Services.Models
-@using MapaAndMaya.Services.NomenclatureServices
 @using MapaAndMaya.Services
+@using MapaAndMaya.Services.Core.Models
+@using MapaAndMaya.Services.Services
+@using MapaAndMaya.Services.Services.NomenclatureServices
 
 @inject SedeService _sedeService;
 @inject SedeTypeService _sedeTypeService;
 @inject TownService _townService;
 @inject DialogService _dialogService;
 @inject NotificationService _notificationService;
-<RadzenRow >
-    <RadzenText Text="Sedes" TextStyle="TextStyle.H3" TagName="TagName.H1"/>
-</RadzenRow>
+
+<HeaderComponent Name="Sedes"/>
+
 <RadzenRow JustifyContent="JustifyContent.End" AlignItems="AlignItems.End">
     <RadzenButton Icon="add_circle_outline" Text="Agregar" ButtonStyle="ButtonStyle.Primary" Click="@AddItem" class="my-3"/>
     <RadzenButton Icon="delete_forever" Text="Eliminar" Click="@DeleteItems" class="my-3" ButtonStyle="ButtonStyle.Danger" Disabled="@(SelectedItems == null || SelectedItems.Count == 0)"/>
@@ -78,7 +79,7 @@
                     
                             </div>
                             <div class="col-md-6 pb-3">
-                            <RadzenLabel Component="UbicacionSede" Text="Tipo de Sede"/> <br/>
+                            <RadzenLabel Component="UbicacionSede" Text="Municipio"/> <br/>
                     
                                 <RadzenDropDown Style="width:300px" TValue="int" Name="UbicacionSede" @bind-Value="ViewModel.TownId" Placeholder="Eliga una Ubicacíon" AllowFiltering="true"
                                                 Data="@(TownsCollection)"  TextProperty="Name"  ValueProperty="Id" InputAttributes="@(new Dictionary<string, object>() { { "aria-label", "Seleccione un Municipio" } })"

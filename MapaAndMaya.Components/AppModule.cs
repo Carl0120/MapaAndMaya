@@ -1,8 +1,8 @@
 ﻿using EIS.Core.Services.Contracts;
 using MapaAndMaya.Services;
-using MapaAndMaya.Services.DB;
-using MapaAndMaya.Services.NomenclatureServices;
-using MapaAndMaya.Services.Repositories;
+using MapaAndMaya.Services.Data.DB;
+using MapaAndMaya.Services.Services;
+using MapaAndMaya.Services.Services.NomenclatureServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,6 +55,7 @@ public class AppModule : IAppModule
         services.AddTransient<CourseService>();
         services.AddTransient<YearsAssignmentService>();
         services.AddTransient<SubjectsAssignmentService>();
+        services.AddTransient<SedeAssignmentService>();
     }
     private void AddRepositories(IServiceCollection services)
     {

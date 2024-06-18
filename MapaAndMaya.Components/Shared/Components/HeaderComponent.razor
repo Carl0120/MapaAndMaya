@@ -1,0 +1,30 @@
+﻿<h4>
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem">
+        <RadzenIcon Icon="golf_course" Style="width: 3px !important;margin-left: 15px;" />
+        @Name
+        <RadzenBreadCrumb>
+            <Template Context="item">
+                <RadzenBadge Text="@item.Text" IsPill="true" />
+            </Template>
+            <ChildContent>
+                @foreach (var permission in _permissions)
+                {
+                    <RadzenBreadCrumbItem Text="@permission" />
+                }
+                 <RadzenBreadCrumbItem Text="@Name" />
+            </ChildContent>
+        </RadzenBreadCrumb>
+    </RadzenStack>
+</h4>
+
+<hr style="border: none; background-color: var(--rz-text-disabled-color); height: 1px; margin: 1rem 0;" />
+
+@code{
+    [Parameter] public string Name { get; set; } = "";
+
+    List<string> _permissions = new()
+    {
+        "Home"
+    };
+
+}

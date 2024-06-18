@@ -1,13 +1,13 @@
-﻿@page "/course/{CourseId:int}/years"
+﻿@page "/course/{CourseId:int}/subjects"
 @using MapaAndMaya.Services
-@using MapaAndMaya.Services.NomenclatureServices
 @using MapaAndMaya.Components.Areas.Courses.Components
+@using MapaAndMaya.Services.Services
+@using MapaAndMaya.Services.Services.NomenclatureServices
 
-@inject NavigationManager _navigationManager;
+
 @inject YearsAssignmentService _yearsAssignmentService;
 @inject CourseService _courseService;
 @inject PeriodService _periodService;
-@inject AcademicYearService _academicYearService;
 @inject DialogService _dialogService;
 @inject NotificationService _notificationService;
 
@@ -19,16 +19,7 @@
 }
 else if (Course != default)
 {
-    <RadzenRow JustifyContent="JustifyContent.Start" AlignItems="AlignItems.End">
-        <RadzenText Text="Carrera: " TextStyle="TextStyle.H5" TagName="TagName.H3"/>
-        <RadzenText Text="@Course.DegreeModality.Degree!.Name" TextStyle="TextStyle.H6" TagName="TagName.H3" Style=""/>
-        <RadzenText Text="Modalidad: " TextStyle="TextStyle.H5" TagName="TagName.H3"/>
-        <RadzenText Text="@Course.DegreeModality.Modality!.Name" TextStyle="TextStyle.H6" TagName="TagName.H1" Style=""/>
-        <RadzenText Text="Plan: " TextStyle="TextStyle.H5" TagName="TagName.H3"/>
-        <RadzenText Text="@Course.StudyPlan!.Name" TextStyle="TextStyle.H6" TagName="TagName.H3" Style=""/>
-        <RadzenText Text="Curso: " TextStyle="TextStyle.H5" TagName="TagName.H3"/>
-        <RadzenText Text="@Course.AcademicCourse!.Name" TextStyle="TextStyle.H6" TagName="TagName.H3" Style=""/>
-    </RadzenRow>
+    <CourseViewComponent Course="Course"/>
     <RadzenRow JustifyContent="JustifyContent.End" AlignItems="AlignItems.End">
         <RadzenButton Icon="add_circle_outline" Text="Agregar Año Académico" ButtonStyle="ButtonStyle.Primary" Click="@AddItem" class="my-3"/>
     </RadzenRow>
@@ -104,6 +95,5 @@ else
                 <RadzenText TextStyle="TextStyle.H6" Text="@message"></RadzenText>
         </RadzenStack>, new DialogOptions { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
     }
-
 
 }

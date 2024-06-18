@@ -1,5 +1,6 @@
 ﻿using MapaAndMaya.Services;
-using MapaAndMaya.Services.Models;
+using MapaAndMaya.Services.Core.Models;
+using MapaAndMaya.Services.Services;
 using MapaAndMaya.Services.ViewModels;
 using Radzen;
 using Radzen.Blazor;

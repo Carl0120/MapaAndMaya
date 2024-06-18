@@ -1,19 +1,20 @@
 ﻿@page "/courses"
-
-@using MapaAndMaya.Services.Models
 @using MapaAndMaya.Services
-@using MapaAndMaya.Services.NomenclatureServices
+@using MapaAndMaya.Services.Core.Models
+@using MapaAndMaya.Services.Services
+@using MapaAndMaya.Services.Services.NomenclatureServices
 
 @inject CourseService _courseService;
 @inject AcademicCourseService _academicCourseService;
+@inject ContextMenuService _contextMenuService;
 @inject StudyPlanService _studyPlanService;
 @inject DegreeService _degreeService;
 @inject DialogService _dialogService;
 @inject NotificationService _notificationService;
 @inject NavigationManager  _navigationManager;
-<RadzenRow >
-    <RadzenText Text="Cursos" TextStyle="TextStyle.H3" TagName="TagName.H1"/>
-</RadzenRow>
+
+<HeaderComponent Name="Cursos"/>
+
 <RadzenRow JustifyContent="JustifyContent.End" AlignItems="AlignItems.End">
     <RadzenButton Icon="add_circle_outline" Text="Agregar" ButtonStyle="ButtonStyle.Primary" Click="@AddItem" class="my-3"/>
     <RadzenButton Icon="delete_forever" Text="Eliminar" Click="@DeleteItems" class="my-3" ButtonStyle="ButtonStyle.Danger" Disabled="@(SelectedItems == null || SelectedItems.Count == 0)"/>
@@ -23,7 +24,7 @@
 <RadzenDataGrid @ref="_grid" Data="@ItemsCollection" TItem="Course" AllowPaging="true" AllowColumnResize="true" style="box-shadow: var(--rz-shadow-5);"
                 PageSize="10" PagerHorizontalAlign="HorizontalAlign.Left" IsLoading="@_isLoading" ShowPagingSummary="true" PagingSummaryFormat="Página {0} de {1} <b>(total {2} filas)</b>" PageSizeOptions="@(new int[] { 5, 10, 20, 30 })"
                 AllowFiltering="true" FilterMode="FilterMode.Advanced" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                AllowSorting="true" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@SelectedItems">
+                AllowSorting="true" SelectionMode="DataGridSelectionMode.Multiple"  @bind-Value="@SelectedItems">
 
     <EmptyTemplate>
         <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Nada que mostrar.</p>
@@ -35,7 +36,7 @@
             <HeaderTemplate>
                 <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string, object> { { "aria-label", "Select all items" } })"
                                 Value="@(SelectedItems == null || SelectedItems?.Any() != true ? false : !ItemsCollection.All(i => SelectedItems.Contains(i)) ? null : ItemsCollection.Any(i => SelectedItems.Contains(i)))"
-                                Change="@(args => SelectedItems = args == true ? ItemsCollection.ToList() : null)"/>
+                                Change="@(args => SelectedItems = args == true ? ItemsCollection.ToList() : null)" />
             </HeaderTemplate>
             <Template Context="data">
                 <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(SelectedItems != null && SelectedItems.Contains(data))" InputAttributes="@(new Dictionary<string, object> { { "aria-label", "Select item" } })"
@@ -46,14 +47,16 @@
         <RadzenDataGridColumn TItem="Course" Property="DegreeModality.Degree.Name" Title="Carrera"/>
         <RadzenDataGridColumn TItem="Course" Property="DegreeModality.Modality.Name" Title="Modalidad"/>
         <RadzenDataGridColumn TItem="Course" Property="StudyPlan.Name" Title="Plan de Estudios"/>
-         <RadzenDataGridColumn TItem="Course" Property="NumberOfYears" Title="Años de Duración"/>
-        <RadzenDataGridColumn TItem="Course" Context="data" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="156px">
-                    <Template Context="data">
-                        <RadzenButton Icon="launch"  ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
-                                      Click="@(_ => _navigationManager.NavigateTo($"course/{data.Id}/years"))" @onclick:stopPropagation="true">
-                                                                                                      </RadzenButton>
-                    </Template>
-                    </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Course" Property="NumberOfYears" Title="Años de Duración"/>
+           <RadzenDataGridColumn TItem="Course" Context="data" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="156px">
+                           <Template Context="data">
+                               <RadzenButton Text="Ir A " Icon="flight_takeoff" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                             Click="@( args => ShowContextMenuWithItems(args,data.Id))" @onclick:stopPropagation="true">
+                                                                                                             </RadzenButton>
+                                                                                                       
+                               
+                           </Template>
+                           </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="Course" Context="data" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="156px">
             <Template Context="data">
                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
@@ -65,6 +68,19 @@
 </RadzenDataGrid>
 
 @code{
+    void ShowContextMenuWithItems(MouseEventArgs args,int id)
+    { 
+        Console.WriteLine("Lledo############");
+        
+        _contextMenuService.Open(args, ds =>
+            @<RadzenMenu>
+                <RadzenMenuItem Text="Maya Curricular" Click="@(_ => _navigationManager.NavigateTo($"course/{id}/subjects"))"></RadzenMenuItem>
+                <hr />
+                <RadzenMenuItem Text="Mapa de Carrera" Click="@(_ => _navigationManager.NavigateTo($"course/{id}/sedes"))"></RadzenMenuItem>
+                
+        </RadzenMenu>
+    );}
+    
 
     private async Task ShowFormularyDialog( ICollection<DegreeModality> DegreeModalities, Action onSummit, string title)
     {

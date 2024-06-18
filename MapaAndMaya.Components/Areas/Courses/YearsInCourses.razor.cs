@@ -1,4 +1,4 @@
-﻿using MapaAndMaya.Services.Models;
+﻿using MapaAndMaya.Services.Core.Models;
 using MapaAndMaya.Services.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Radzen;

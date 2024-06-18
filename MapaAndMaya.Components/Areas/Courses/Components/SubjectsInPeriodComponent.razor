@@ -1,6 +1,7 @@
 ﻿@using MapaAndMaya.Services
-@using MapaAndMaya.Services.Models
-@using MapaAndMaya.Services.NomenclatureServices
+@using MapaAndMaya.Services.Core.Models
+@using MapaAndMaya.Services.Services
+@using MapaAndMaya.Services.Services.NomenclatureServices
 
 @inject SubjectsAssignmentService _subjectsAssignmentService;
 @inject SubjectService _subjectService;
@@ -8,7 +9,8 @@
 @inject NotificationService _notificationService;
 
 <RadzenCard Class="rz-my-6 rz-mx-auto" Variant="Variant.Text">
-   @if (_courseNotFound)
+  
+    @if (_courseNotFound)
    {
        <EmptyTemplate>
            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Ha ocurrido un error Recarge la Pagina</p>
@@ -46,7 +48,7 @@
                                     TValue="bool" Change=@(args => { _grid.SelectRow(data);})/>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="SubjectsInPeriod" Property="Subject.Name" Title="Nombre"/>
+            <RadzenDataGridColumn TItem="SubjectsInPeriod" Property="Subject.Name" Title="Asignatura"/>
             <RadzenDataGridColumn TItem="SubjectsInPeriod" Context="data" Title="Tiene Examen Final"  Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="156px">
                                                     <Template Context="data">
                                                         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
@@ -86,7 +88,7 @@
                         </div>
                         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Right">
                             <RadzenButton ButtonType="ButtonType.Submit" Text="Guardar" Icon="save" class="me-1"/>
-                            <RadzenButton Text="Cancelar" Icon="clear" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Light" class="me-1"/>
+                            <RadzenButton Text="Cancelar" Icon="clear"  Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Light" class="me-1"/>
                 </RadzenStack>
                 </EditForm>
                 , new DialogOptions { Width = $"{800}px" }
